@@ -1,0 +1,325 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Anton&family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700;1,900&family=IM+Fell+English:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Alex+Brush&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@300;400;500;600;700;800&family=Archivo+Black&family=Archivo:wght@400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind utilities;
+
+/* ── Brand palette ────────────────────────────────────────────── */
+:root {
+  --cream:       #f4f4f4;   /* brand light / page base    */
+  --cream-dark:  #e8e8e8;   /* card surfaces               */
+  --paper:       #fafafa;   /* elevated panels             */
+  --yellow:      #ffcb31;   /* brand yellow — primary accent */
+  --yellow-light:#ffd860;   /* hover yellow               */
+  --yellow-dim:  rgba(255,203,49,0.14); /* subtle tint    */
+  --ink:         #111111;   /* primary text / dark sections */
+  --ink-mid:     #2a2a2a;   /* body text                   */
+  --ink-light:   #888888;   /* muted / captions            */
+  --rust:        #c44b1a;   /* italic accent               */
+  /* legacy alias so old references still work */
+  --gold:        #ffcb31;
+  --gold-light:  #ffd860;
+
+  /* How much room the fixed navbar takes at the top of the page: its own
+     padding twice over, plus the centre logo. The bar is transparent site-wide,
+     so any section that puts content near the top has to reserve this or the
+     logo lands on it. Keep in step with Navbar.jsx. */
+  --nav-h: calc(2 * clamp(28px, 4.5vh, 48px) + clamp(38px, 7.2vh, 62px));
+
+  /* The footer's fixed height. The yellow contact panel above it is sized
+     calc(100vh - var(--footer-h)), so the two together are exactly one screen.
+     Change this and the contact panel follows. */
+  --footer-h: clamp(228px, 28vh, 310px);
+}
+
+/* ── Reset ──────────────────────────────────────────────────────── */
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+
+/* ── Client request: ONE typeface site-wide (Bebas Neue) + uniform tracking ──
+   Overrides every inline/component font-family so the whole body is Bebas Neue
+   with the same letter-spacing everywhere. Wordmark keeps its own size/word-spacing. */
+*,*::before,*::after {
+  font-family: 'Bebas Neue', sans-serif !important;
+  letter-spacing: 0.04em !important;
+}
+
+/* Hero CTA is the one deliberate exception — it needs wider tracking to read
+   clearly at small size against the video. */
+/* ── Hero wordmark — letter-by-letter typing + hover ────────────── */
+/* Characters are revealed one at a time in JS (see FloatingBrandName).
+   This rule only handles hover colour + enabling pointer events, since
+   the fixed wrapper above it sets pointer-events: none. */
+.bd-type {
+  pointer-events: auto;
+  transition: color 0.3s ease;
+}
+/* The wordmark is painted with a gradient (background-clip: text), so the hover
+   colour has to override -webkit-text-fill-color, not just color. */
+.bd-type:hover { color: var(--yellow) !important; -webkit-text-fill-color: var(--yellow) !important; }
+
+/* Buttons opt out of the site-wide Bebas and use Manrope. */
+/* ── Featured-campaign lockup (hero, right side) ─────────────────
+   Brittany is self-hosted at public/fonts/; Alex Brush stays in the stack as a
+   fallback if the file ever goes missing. */
+@font-face {
+  font-family: 'Brittany Signature';
+  /* Brittany as the deck itself embeds it (unwrapped from the PPTX's EOT);
+     the free web cut draws a different 'w'. */
+  src: url('/fonts/brittany.otf') format('opentype'),
+       url('/fonts/brittany-signature.woff') format('woff');
+  font-display: swap;
+}
+.giva-tag    { letter-spacing: -0.018em !important; }
+.giva-script {
+  font-family: 'Brittany Signature', 'Alex Brush', cursive !important;
+  letter-spacing: -0.018em !important;
+}
+
+/* ── Zoho campaign lockup ────────────────────────────────────────
+   Deck tracking. (Slide 4 names the face "Bebas Neue Bold", but that embedded
+   file measures identical to the regular — there is no bold cut to ship.) */
+.deck-type { letter-spacing: -0.018em !important; }
+.cta-hero, .btn-mr { font-family: 'Manrope', sans-serif !important; }
+.cta-hero { letter-spacing: 0.22em !important; }
+/* auto, not smooth: the smooth scrolling is driven per frame in JS
+   (useSmoothScroll), and a native smooth behaviour would start a competing
+   animation on every one of those scrollTo calls. Anything that wants an
+   animated jump asks for it explicitly, e.g. scrollIntoView({behavior:'smooth'}). */
+html { scroll-behavior:auto; }
+body {
+  background: var(--cream);
+  color: var(--ink);
+  cursor: none;           /* we have a custom cursor */
+  font-family: 'Bebas Neue', sans-serif;   /* site default per client (headings font) */
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+#root { min-height:100vh; display:flex; flex-direction:column; }
+a,button { cursor: none; }
+img { display:block; }
+
+/* ── Custom cursor — ghost yellow glow ──────────────────────────── */
+/* individual elements are fully inline-styled in CustomCursor.jsx  */
+
+/* ── Scrollbar ──────────────────────────────────────────────────── */
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-track { background:var(--cream-dark); }
+::-webkit-scrollbar-thumb { background:var(--yellow); }
+.no-scroll::-webkit-scrollbar { display:none; }
+.no-scroll { -ms-overflow-style:none; scrollbar-width:none; }
+
+/* ── Focus ───────────────────────────────────────────────────────── */
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--yellow) !important;
+  box-shadow: 0 2px 0 var(--yellow);
+}
+button:focus-visible { outline:2px solid var(--yellow); outline-offset:3px; }
+
+/* ── Paper grain ─────────────────────────────────────────────────── */
+.grain-overlay {
+  position:fixed; inset:0;
+  pointer-events:none; z-index:9999;
+  opacity:0.055; mix-blend-mode:multiply;
+}
+
+/* ── Film strip ──────────────────────────────────────────────────── */
+.film-holes {
+  height:22px; flex-shrink:0;
+  background-color:var(--ink);
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent 0, transparent 5px,
+    var(--cream-dark) 5px, var(--cream-dark) 19px,
+    transparent 19px, transparent 24px
+  );
+}
+
+/* ── Torn paper shadow helpers ───────────────────────────────────── */
+/* Drop-shadow is used (not box-shadow) because it follows clip-path  */
+.tear-shadow-r {
+  filter:
+    drop-shadow(14px 0 40px rgba(0,0,0,0.75))
+    drop-shadow(6px  0 14px rgba(0,0,0,0.55))
+    drop-shadow(2px  0  4px rgba(0,0,0,0.4));
+}
+.tear-shadow-l {
+  filter:
+    drop-shadow(-14px 0 40px rgba(0,0,0,0.75))
+    drop-shadow(-6px  0 14px rgba(0,0,0,0.55))
+    drop-shadow(-2px  0  4px rgba(0,0,0,0.4));
+}
+
+/* ── Magazine page elements ──────────────────────────────────────── */
+.mag-spine {
+  writing-mode: vertical-rl;
+  text-transform: uppercase;
+  letter-spacing: 0.32em;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 6.5px;
+  user-select: none;
+}
+
+/* ── Ticker ──────────────────────────────────────────────────────── */
+.ticker-track { display:flex; white-space:nowrap; will-change:transform; }
+
+/* ── Nav link ────────────────────────────────────────────────────── */
+.nav-link { position:relative; padding-bottom:3px; }
+.nav-link::after {
+  content:''; position:absolute;
+  bottom:0; left:0; width:0; height:2px;
+  background: var(--yellow);
+  transition: width 0.28s ease;
+}
+.nav-link.active::after,
+.nav-link:hover::after { width:100%; }
+.nav-link.active {
+  text-shadow: 0 0 10px rgba(255,203,49,0.55), 0 0 22px rgba(255,203,49,0.25);
+}
+
+/* ── Yellow pill ─────────────────────────────────────────────────── */
+.yellow-pill {
+  display:inline-block;
+  background:var(--yellow); color:var(--ink);
+  font-family:'DM Sans',sans-serif;
+  font-size:8px; letter-spacing:0.2em; text-transform:uppercase;
+  padding:3px 10px;
+}
+
+/* ── Section ornament borders ────────────────────────────────────── */
+.double-border-ink-y { border-top:3px double var(--ink); border-bottom:3px double var(--ink); }
+.border-yellow-top { border-top:3px solid var(--yellow); }
+.border-yellow-b { border-bottom:2px solid var(--yellow); }
+
+/* ── Kicker ──────────────────────────────────────────────────────── */
+.kicker {
+  font-family:'DM Sans',sans-serif;
+  font-size:9px; letter-spacing:0.24em; text-transform:uppercase;
+  color:var(--ink-light);
+}
+.kicker-yellow {
+  font-family:'DM Sans',sans-serif;
+  font-size:9px; letter-spacing:0.24em; text-transform:uppercase;
+  color:var(--yellow);
+}
+
+/* ── Utility shortcuts ───────────────────────────────────────────── */
+.font-playfair { font-family:'Playfair Display',serif; }
+.font-fell      { font-family:'IM Fell English',serif; }
+
+/* ── Clip-path text reveal helper (used via Framer Motion) ─────── */
+/* (actual clip-path values set inline in components)               */
+
+/* ── Hero scroll fade ────────────────────────────────────────────── */
+@keyframes subtlePulse {
+  0%,100% { opacity:0.7; } 50% { opacity:1; }
+}
+.pulse { animation: subtlePulse 2.4s ease-in-out infinite; }
+
+/* ── Film Reel — Music Studio infinite scroll ────────────────────── */
+@keyframes filmReel {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }  /* -50% = one full duplicate set */
+}
+.film-reel-outer { overflow: hidden; }
+.film-reel-track {
+  display: flex;
+  gap: 3px;
+  width: max-content;
+  animation: filmReel 38s linear infinite;
+  will-change: transform;
+}
+/* Hover anywhere on the strip pauses the reel */
+.film-reel-outer:hover .film-reel-track {
+  animation-play-state: paused;
+}
+/* Horizontal sprocket holes (top / bottom of reel) */
+.film-holes-h {
+  height: 18px;
+  background-color: #000;
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent       0,   transparent       5px,
+    rgba(255,255,255,0.13) 5px,  rgba(255,255,255,0.13) 17px,
+    transparent       17px, transparent       22px
+  );
+}
+
+/* ── Featured showcase stills + mobile structural overrides ─────── */
+@media (max-width: 767px) {
+  .featured-still { display: none !important; }
+  .work-view-all  { display: none !important; }
+}
+
+/* ── Mobile / touch — hide custom cursor, restore default ───────── */
+@media (pointer: coarse) {
+  body, a, button { cursor: auto !important; }
+  [data-cursor] { cursor: auto !important; }
+  /* Lightbox: full-width on touch */
+  .lb-card { max-width: 100% !important; }
+}
+
+/* ── Mobile responsive overrides ────────────────────────────────── */
+@media (max-width: 640px) {
+  /* Film reel cards: narrower on phone */
+  .reel-card { width: 168px !important; }
+  .reel-card .reel-video-area { height: 150px !important; }
+
+  /* Work page filter pills wrap cleanly */
+  .filter-bar { gap: 14px !important; }
+
+  /* Tear spread: full-width stacked panels on mobile */
+  .tear-panels { flex-direction: column !important; }
+  .tear-panel-left,
+  .tear-panel-right { clip-path: none !important; transform: none !important; flex: none !important; width: 100% !important; }
+  .tear-center { display: none !important; }
+}
+
+@media (max-width: 900px) {
+  /* 2-col video grid on tablet */
+  .video-grid-inner { grid-template-columns: repeat(2, 1fr) !important; }
+  .video-grid-hero  { grid-column: 1 / -1 !important; grid-row: auto !important; }
+}
+
+@media (max-width: 540px) {
+  /* 1-col video grid on phone */
+  .video-grid-inner { grid-template-columns: 1fr !important; }
+}
+
+/* ── Testimonials marquee (Arpeggio-style ticker) ───────────────── */
+/* Track holds 2 identical sets; sliding exactly -50% loops seamlessly. */
+@keyframes tmScroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.tm-track {
+  animation: tmScroll 45s linear infinite;
+  will-change: transform;
+}
+.tm-viewport:hover .tm-track { animation-play-state: paused; }
+
+/* Soft-fade both edges (matches the reference) so cards dissolve as they
+   enter/leave instead of being hard-clipped at the container edge. */
+.tm-viewport {
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 12.5%, #000 87.5%, transparent 100%);
+          mask-image: linear-gradient(to right, transparent 0%, #000 12.5%, #000 87.5%, transparent 100%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .tm-track { animation: none; }
+}
+
+/* ── Rip flash ───────────────────────────────────────────────────── */
+@keyframes ripFlash {
+  0%   { transform:scaleY(0); opacity:1; }
+  60%  { transform:scaleY(1); opacity:1; }
+  100% { transform:scaleY(1); opacity:0; }
+}
+.rip-line {
+  position:absolute; top:0; bottom:0; left:50%;
+  transform:translateX(-50%) scaleY(0);
+  transform-origin:top;
+  width:3px; background:var(--yellow);
+  z-index:30; pointer-events:none;
+  animation:ripFlash 0.35s ease-out forwards;
+}
