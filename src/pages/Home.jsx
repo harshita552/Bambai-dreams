@@ -975,19 +975,24 @@ function WorkCampaignPanel({ campaign }) {
 }
 
 // Six featured reels — Vimeo (thumbnail poster + background-mode video on hover).
-// zoom: extra crop for a film that carries its own black bars. Under Armour is
-// delivered pillarboxed inside a 16:9 master (85px and 77px of hard black on a
-// 640-wide frame), so it needs ~1.27 before its picture reaches the tile edges.
+// Titles are the films' own, as they read on vimeo.com/bambaidreams.
 const WORK_REELS = [
-  { index: '01', title: 'realme Buds', sub: 'realme × Shraddha Kapoor', id: '723672753', h: '6fb2c2f99a' },
-  { index: '02', title: 'Imagine IF', sub: 'OPPO × SS Rajamouli · Photography Awards', id: '947795645', h: '85a5df077a' },
-  { index: '03', title: "Mother's Day", sub: 'GIVA × Anushka Sharma', id: '1192836882', h: '1d9cc99793' },
-  { index: '04', title: 'Under Armour × Trainers', sub: 'Athlete Campaign', id: '1141783245', h: '1c482a8887', zoom: 1.28 },
-  { index: '05', title: 'OPPO Reno5 Pro 5G', sub: 'OPPO × Ranbir Kapoor', id: '589342839', h: '46f31c8571' },
-  { index: '06', title: 'Ram Bharose Diwali', sub: 'realme · Sales Film', id: '1016783235', h: '095fcddc95' },
+  { index: '01', title: 'realme 14 Series', sub: 'realme × Shah Rukh Khan', id: '1045916243', h: '0f88637370' },
+  { index: '02', title: 'GIVA', sub: 'GIVA × Kriti Sanon', id: '1194918051', h: '76643967c4' },
+  { index: '03', title: 'Zindagi Ke Real Heroes', sub: 'OPPO F29 Series 5G · The Durable Champion', id: '1068788543', h: '9a57c4fc4e' },
+  { index: '04', title: 'Velocity Elite', sub: 'Under Armour × Vedarth Thapa', id: '1190896661', h: '260b0b94e6' },
+  { index: '05', title: 'Velocity Elite', sub: 'Under Armour × Renee Noronha', id: '1183020138', h: '0cb42d51f0' },
+  // zoom: this one is a ~2.2:1 film delivered letterboxed inside a 16:9 frame,
+  // so it plays with black bands over roughly 9% of the height top and bottom.
+  // 1.25 scales the picture past them and fills the tile like the rest.
+  { index: '06', title: 'Imagine IF', sub: 'OPPO × SS Rajamouli · Photography Awards', id: '947795645', h: '85a5df077a', zoom: 1.25 },
 ];
 
-const TILE_AR = 407 / 265;   // deck slide 5 — every tile is this exact box
+// 16:9 — the ratio every one of these films is mastered at, so each fills its
+// tile exactly: no letterbox bands, no crop, and all six identical. (The deck
+// drew 407x265 tiles, but that is 1.54 against the films' 1.78 and the mismatch
+// is what put black bands on some of them.)
+const TILE_AR = 16 / 9;
 const TILE_ZOOM = 1.04;      // shared overscan, so no tile shows a seam or a stray edge
 
 // Grid tile: at rest it is just the film's thumbnail. The video mounts on the
@@ -1072,7 +1077,8 @@ function WorkTile({ reel, active, onEnter, onLeave }) {
     <div ref={tileRef} onMouseLeave={onLeave} onClick={openPlayer}
       onMouseEnter={onEnter}
       style={{
-        aspectRatio: '407 / 265', minWidth: 0,
+        // height-driven: the row hands down a height, 16:9 gives the width
+        height: '100%', aspectRatio: '16 / 9', minWidth: 0, flexShrink: 1,
         outline: active ? '1px solid rgba(255,255,255,0.9)' : '1px solid transparent',
         boxShadow: active ? '0 0 32px rgba(255,255,255,0.28)' : '0 0 0 rgba(255,255,255,0)',
         transition: 'box-shadow 0.35s ease, outline-color 0.35s ease',
@@ -1144,15 +1150,23 @@ export function WorkShowcase({ outerRef }) {
   const [activeId, setActiveId] = useState(null);   // hovered reel — shared across all tiles
 
   return (
-    <section ref={outerRef} data-snap style={{ position: 'relative', zIndex: 3, background: '#0a0a0a' }}>
+    // Desktop: exactly one screen, so both rows of tiles are on screen together.
+    // The snap's next stop is the section after this one, so anything that does
+    // not fit here can never be scrolled to.
+    <section ref={outerRef} data-snap style={{
+      position: 'relative', zIndex: 3, background: '#0a0a0a',
+      ...(isMobile ? null : { height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }),
+    }}>
       {/* Section header */}
-      <div style={{ padding: 'clamp(48px,8vh,100px) clamp(20px,4vw,56px) clamp(20px,3vh,32px)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+      {/* top pad clears the fixed navbar — it is transparent here, so without it
+          the heading rides up underneath the social links and the centre mark */}
+      <div style={{ flexShrink: 0, padding: 'calc(var(--nav-h) - clamp(8px,1.8vh,24px)) clamp(20px,4vw,56px) clamp(14px,2.2vh,24px)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 16 }}>
           <div style={{ minWidth: 0 }}>
             {/* Deck slide 5: heading 87.1px, sub 25px on the gold gradient. */}
             <h2 onMouseEnter={() => setTitleHover(true)} onMouseLeave={() => setTitleHover(false)}
               style={{
-                fontFamily: BB, fontWeight: 900, fontSize: 'clamp(34px,6.05vw,87px)', margin: '10px 0 0', lineHeight: 0.88, textTransform: 'uppercase', whiteSpace: isMobile ? 'normal' : 'nowrap', letterSpacing: '-0.02em', cursor: 'default',
+                fontFamily: BB, fontWeight: 900, fontSize: 'clamp(28px,4.2vw,60px)', margin: '10px 0 0', lineHeight: 0.88, textTransform: 'uppercase', whiteSpace: isMobile ? 'normal' : 'nowrap', letterSpacing: '-0.02em', cursor: 'default',
                 color: titleHover ? 'var(--yellow)' : '#fff',
                 WebkitTextStroke: titleHover ? '1px var(--yellow)' : '1px #fff',
                 transition: 'color 0.3s ease, -webkit-text-stroke-color 0.3s ease'
@@ -1188,20 +1202,32 @@ export function WorkShowcase({ outerRef }) {
           {WORK_REELS.map((r) => <MobileWorkCard key={r.index} reel={r} />)}
         </div>
       ) : (
-        // Deck slide 5 lays six equal 407x265 tiles on a 3-column grid with
-        // 17px column gaps and 23px row gaps — so every tile is the same size,
-        // rather than the old widen-on-hover accordion.
+        // Two rows of three, sized by the HEIGHT left over rather than by width.
+        // Each tile is height:100% of its row with a 16:9 ratio, so its width
+        // follows — which means the tiles are always the largest that genuinely
+        // fit, and the bottom row can never fall off the screen. Capping the
+        // width instead (the previous approach) meant guessing a vh number that
+        // had to hold at every aspect at once, and it could not.
         <div onMouseLeave={() => setActiveId(null)}
           style={{
-            display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)',
-            columnGap: 'clamp(8px,1.18vw,17px)', rowGap: 'clamp(10px,1.6vw,23px)',
-            padding: 'clamp(20px,3vh,40px) clamp(16px,5.63vw,81px) clamp(40px,6vh,80px)',
+            flex: '1 1 auto', minHeight: 0,
+            display: 'flex', flexDirection: 'column', justifyContent: 'center',
+            rowGap: 'clamp(28px,7vh,90px)',
+            padding: 'clamp(10px,1.6vh,24px) clamp(12px,1.5vw,28px) clamp(14px,2.2vh,32px)',
           }}>
-          {WORK_REELS.map((r) => (
-            <WorkTile key={r.index} reel={r}
-              active={activeId === r.index}
-              onEnter={() => setActiveId(r.index)}
-              onLeave={() => setActiveId((cur) => (cur === r.index ? null : cur))} />
+          {[0, 1].map((row) => (
+            <div key={row} style={{
+              flex: '1 1 0', minHeight: 0,
+              display: 'flex', justifyContent: 'center',
+              gap: 'clamp(14px,1.9vw,30px)',
+            }}>
+              {WORK_REELS.slice(row * 3, row * 3 + 3).map((r) => (
+                <WorkTile key={r.index} reel={r}
+                  active={activeId === r.index}
+                  onEnter={() => setActiveId(r.index)}
+                  onLeave={() => setActiveId((cur) => (cur === r.index ? null : cur))} />
+              ))}
+            </div>
           ))}
         </div>
       )}
@@ -1265,7 +1291,11 @@ const TESTIMONIALS = [
 // artwork's real ink box once it loads and normalise on area, so a wide wordmark
 // and a compact symbol carry the same visual weight — and re-centre on the ink
 // rather than on the file's canvas.
-const RING_INK_AREA = 4600;        // target ink area in px^2 at desktop size
+// Every logo is drawn to the same ink HEIGHT. Matching area instead — which is
+// what this did before — leaves a wide wordmark short and a compact symbol tall,
+// so the row never looks level.
+const RING_INK_H = 26;             // shared ink height in px at desktop size
+const RING_INK_MAX_W = 250;        // ...unless a very wide wordmark would run past this
 
 function RingLogo({ brand, i, step, radius, rotation, isMobile }) {
   const boxW = isMobile ? 116 : 165;
@@ -1297,10 +1327,10 @@ function RingLogo({ brand, i, step, radius, rotation, isMobile }) {
     const inkCx = ((minX + maxX + 1) / 2) * px, inkCy = ((minY + maxY + 1) / 2) * py;
     const k = Math.min(boxW / W, boxH / H);                  // object-fit: contain
     const renderedW = inkW * k, renderedH = inkH * k;
-    const area = RING_INK_AREA * (isMobile ? 0.47 : 1);
+    const targetH = RING_INK_H * (isMobile ? 0.68 : 1);
     const scale = Math.min(
-      Math.sqrt(area / (renderedW * renderedH)),
-      boxW / renderedW, boxH / renderedH,                    // never overflow the slot
+      targetH / renderedH,                                   // same ink height for all
+      (RING_INK_MAX_W * (isMobile ? 0.68 : 1)) / renderedW,   // cap the widest wordmarks
     );
     setFit({
       s: +scale.toFixed(3),
@@ -1342,7 +1372,15 @@ function ClientsCarousel() {
   const isMobile = useIsMobile();
   const N = RING_BRANDS.length;              // 12
   const step = 360 / N;                      // 30°
-  const radius = isMobile ? 240 : 430;       // Spector-like arc — front logo centered, neighbours tucked in
+  // The ring's apparent width is about twice its radius, so 0.25vw of radius
+  // makes it span ~50% of the screen. Clamped so it stays sane at the extremes.
+  const [vw, setVw] = useState(() => (typeof window === 'undefined' ? 1440 : window.innerWidth));
+  useEffect(() => {
+    const onResize = () => setVw(window.innerWidth);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+  const radius = isMobile ? 240 : Math.round(Math.min(650, Math.max(260, vw * 0.25)));
   const rotation = useMotionValue(0);
   const drag = useRef({ on: false, lastX: 0, moved: false });
   const tweenRef = useRef(null);
@@ -1375,7 +1413,7 @@ function ClientsCarousel() {
         onMouseEnter={() => { hoverRef.current = true; }}
         onMouseLeave={() => { hoverRef.current = false; }}
         style={{
-          perspective: 1600, width: 'min(980px, 94vw)', height: 'clamp(140px,20vh,210px)', margin: '0 auto',
+          perspective: 1600, width: '50vw', height: 'clamp(110px,16vh,170px)', margin: '0 auto',
           cursor: drag.current.on ? 'grabbing' : 'grab', touchAction: 'pan-y',
           display: 'flex', alignItems: 'center', justifyContent: 'center'
         }}>
@@ -1428,7 +1466,6 @@ function TestimonialCard({ t }) {
 }
 
 function BrandsMarquee() {
-  const isMobile = useIsMobile();
   return (
     // everything above this is #0a0a0a and everything below stays light, so this
     // is where the always-transparent navbar has to switch its lettering to dark
@@ -1447,7 +1484,7 @@ function BrandsMarquee() {
       <div style={{ textAlign: 'center', flexShrink: 0 }}>
         <h2 style={{
           margin: 0, fontFamily: BB, fontWeight: 900, textTransform: 'uppercase', color: '#111',
-          fontSize: 'clamp(32px,4.6vw,68px)', lineHeight: 0.92, letterSpacing: '-0.02em'
+          fontSize: 'clamp(26px,3.2vw,48px)', lineHeight: 0.9, letterSpacing: '-0.02em'
         }}>TRUSTED BY</h2>
       </div>
 
@@ -1463,32 +1500,6 @@ function BrandsMarquee() {
         marginTop: 'clamp(14px,3vh,40px)', display: 'flex', gap: 24, alignItems: 'stretch',
         flex: '1 1 auto', minHeight: 0,   // absorbs the leftover height
       }}>
-
-        {/* Feature card — campaign still with overlaid caption */}
-        {!isMobile && (
-          <div style={{ position: 'relative', flex: '0 0 auto', width: 360, height: '100%', overflow: 'hidden' }}>
-            <img src="/images/Featured-Campaign/Anushka.png" alt="Featured campaign still"
-              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
-            <div style={{
-              position: 'absolute', inset: 0, pointerEvents: 'none',
-              background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0) 55%)'
-            }} />
-            <div style={{ position: 'absolute', left: 32, right: 32, bottom: 32 }}>
-              <p style={{ margin: 0, fontFamily: BB, fontSize: 34, lineHeight: 1.1, color: '#fff' }}>
-                Featured Campaign
-              </p>
-              <p style={{ margin: '2px 0 16px', fontFamily: MR, fontWeight: 400, fontSize: 17, lineHeight: 1.2, color: 'rgba(255,255,255,0.75)' }}>
-                Bambai Dreams · Brand Film
-              </p>
-              <Link to="/work" style={{
-                fontFamily: MR, fontWeight: 500, fontSize: 17, color: '#fff',
-                textDecoration: 'none', borderBottom: '1px solid rgba(255,255,255,0.9)', paddingBottom: 3
-              }}>
-                Watch Video
-              </Link>
-            </div>
-          </div>
-        )}
 
         <div className="tm-viewport" style={{ overflow: 'hidden', flex: 1, minWidth: 0 }}>
           <ul className="tm-track" style={{ display: 'flex', gap: 24, margin: 0, padding: 0, width: 'max-content', height: '100%' }}>
@@ -1654,33 +1665,34 @@ function ServiceCategoryRow({ cat }) {
     );
   }
 
-  // Desktop: text left 50%, image fills the right 50% edge-to-edge, full row height.
+  // Desktop: text left 60%, film fills the right 40% edge-to-edge, full row height.
   return (
-    <div ref={ref} style={{ height: '100%', display: 'grid', gridTemplateColumns: '1fr 1fr', borderTop: '1px solid rgba(17,17,17,0.12)' }}>
+    <div ref={ref} style={{ height: '100%', display: 'grid', gridTemplateColumns: '60fr 40fr', borderTop: '1px solid rgba(17,17,17,0.12)' }}>
       {text}
       {image}
     </div>
   );
 }
 
-/* Scroll-driven RADIAL REVEAL (expanding circular clip-path mask).
-   The white Services layer is revealed through a perfectly round circle that
-   expands from the centre as you scroll — GSAP ScrollTrigger scrubbed. */
-// Screens of scroll the dome takes to open. The stage runs for 120vh, so the
-// balance (60vh — about one scroll) is the beat it holds once it is full.
-const REVEAL_OPEN_VH = 0.6;
-
-// How far into the dome's run the screen stops being blank. The mask is
-// circle(R at 50% 100%) growing to 115%; the heading is clear of it once R is
-// about 71% of the reference length, which lands at ~0.62 of the run. 0.65
-// leaves a little margin — past this point the reader is left alone.
-const BLANK_END = 0.65;
+/* RADIAL REVEAL (expanding circular clip-path mask).
+   The white Services layer is revealed through a round dome that grows from the
+   bottom edge. Plays on its own clock as the section arrives — deliberately not
+   scrubbed against scroll, so there is never a frame where it sits at 0% and
+   the screen is simply black. */
+const REVEAL_SECONDS = 1;
 
 function ServicesReveal() {
   const wrapRef = useRef(null);
   const maskRef = useRef(null);
   const isMobile = useIsMobile();
 
+  // The reveal plays itself, once, as the section arrives — it is NOT tied to
+  // scroll position. Scrubbing it against scroll is what put an empty black
+  // screen on the page: at the top of the stage the circle sat at 0% and simply
+  // stayed there until the reader moved, so stopping anywhere early meant
+  // staring at nothing. Driven by time instead, the circle is always already
+  // opening by the time the section is on screen; there is no frame to land on
+  // where nothing is happening.
   useEffect(() => {
     if (isMobile) return;   // radial reveal is desktop-only
     const ctx = gsap.context(() => {
@@ -1688,90 +1700,22 @@ function ServicesReveal() {
         { clipPath: 'circle(0% at 50% 100%)' },   // anchored at bottom-centre → dome rises from the bottom edge
         {
           clipPath: 'circle(115% at 50% 100%)',   // grows until the half-circle swallows the whole viewport
-          ease: 'none',
+          duration: REVEAL_SECONDS,
+          ease: 'power2.out',
           scrollTrigger: {
             trigger: wrapRef.current,
-            start: 'top top',
-            // The sticky stage lasts 120vh. Opening the dome across all of it
-            // meant it landed full only as the section began leaving, so the
-            // two read as one motion. Open it over the first stretch instead
-            // and let the rest of the stage hold the finished frame still.
-            end: () => '+=' + window.innerHeight * REVEAL_OPEN_VH,
-            scrub: 0.6,
-            invalidateOnRefresh: true,   // recompute the end on resize
+            // fires while the section is still coming up, so the dome is
+            // already growing by the time it fills the screen
+            start: 'top 70%',
+            once: true,
           },
         });
     });
     return () => ctx.revert();
   }, [isMobile]);
 
-  // The stage is 220vh of dark while the dome opens, so it is possible to stop
-  // scrolling and be left looking at a black screen with nothing on it. Once
-  // scrolling settles inside that stretch, glide the rest of the way out of it —
-  // forward if they were heading down, back the way they came if they were
-  // heading up. Never fires while they are actually scrolling.
-  useEffect(() => {
-    if (isMobile) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const el = wrapRef.current;
-    if (!el) return;
 
-    let dir = 1;
-    let lastY = window.scrollY;
-    let idle = 0;
-    let raf = 0;
-    let animating = false;
-
-    const glide = (to) => {
-      const from = window.scrollY;
-      const delta = to - from;
-      if (Math.abs(delta) < 8) return;
-      const ms = Math.min(1200, Math.max(500, Math.abs(delta) / (window.innerHeight || 1) * 650));
-      const t0 = performance.now();
-      animating = true;
-      const step = (t) => {
-        const p = Math.min(1, (t - t0) / ms);
-        const e = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
-        window.scrollTo(0, from + delta * e);
-        if (p < 1) raf = requestAnimationFrame(step);
-        else animating = false;
-      };
-      raf = requestAnimationFrame(step);
-    };
-
-    const settle = () => {
-      if (animating) return;
-      const vh = window.innerHeight || 1;
-      const r = el.getBoundingClientRect();
-      const stageTop = window.scrollY + r.top;
-      const scrub = el.offsetHeight - vh;        // the run the dome opens over
-      // Only the blank stretch is skipped. BLANK_END is the point where the dome
-      // has grown past the heading, so WHAT WE DO is out in the open — from
-      // there on the reader scrolls it themselves.
-      const blankEnd = stageTop + BLANK_END * scrub;
-      const y = window.scrollY;
-      if (y < stageTop - 4 || y >= blankEnd) return;
-      // going up, leave the stage entirely rather than landing on black again
-      glide(dir > 0 ? blankEnd : stageTop - vh);
-    };
-
-    const onScroll = () => {
-      const y = window.scrollY;
-      if (!animating) dir = y >= lastY ? 1 : -1;
-      lastY = y;
-      clearTimeout(idle);
-      idle = setTimeout(settle, 200);
-    };
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', onScroll);
-      clearTimeout(idle);
-      cancelAnimationFrame(raf);
-    };
-  }, [isMobile]);
-
-  // ── Mobile: plain white section, no dome / no 220vh dark stage ──
+  // ── Mobile: plain white section, no dome / no dark stage ──
   if (isMobile) {
     return (
       <div style={{ background: '#fff', padding: '64px 20px 48px' }}>
@@ -1786,11 +1730,11 @@ function ServicesReveal() {
   }
 
   return (
-    // data-snap-nofill: the scroll snap crosses this whole stage in one move
-    // instead of stopping partway, so nobody is left parked on the black screen
-    // while the dome is still opening.
-    <div ref={wrapRef} data-snap-nofill style={{ position: 'relative', height: '220vh', background: '#0a0a0a' }}>
-      <div style={{ position: 'sticky', top: 0, height: '100vh', overflow: 'hidden' }}>
+    // Exactly one screen. The reveal runs on its own clock now, so there is no
+    // need for a tall pinned stage to scrub it against — and no long dark run to
+    // get stranded in.
+    <div ref={wrapRef} style={{ position: 'relative', height: '100vh', background: '#0a0a0a' }}>
+      <div style={{ position: 'relative', height: '100vh', overflow: 'hidden' }}>
         {/* dark base — visible until the circular mask expands over it */}
         <div style={{ position: 'absolute', inset: 0, background: '#0a0a0a' }} />
         {/* white layer revealed through the expanding circular clip-path */}
@@ -1848,7 +1792,6 @@ function ServicesSection({ outerRef }) {
           zIndex={i + 1}
           background="#fff"
           noShrink={i === SERVICE_CATEGORIES.length - 1}
-          navHideLogo
         >
           <ServiceCategoryRow cat={cat} />
         </StackPanel>

@@ -16,9 +16,9 @@ import { useEffect } from 'react';
  * has asked for reduced motion.
  */
 
-const MIN_MS = 520;
-const MAX_MS = 1250;
-const MS_PER_SCREEN = 700;
+const MIN_MS = 460;
+const MAX_MS = 880;        // caps the long jumps, e.g. across the dark dome stage
+const MS_PER_SCREEN = 620;
 const GESTURE_GAP = 90;    // wheel events closer than this are one flick, not two
 
 // Layout offset from the top of the document. offsetTop is the element's laid
