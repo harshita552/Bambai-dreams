@@ -31,6 +31,7 @@ export default function VideoCard({
   const [imgError, setImgError] = useState(false);
   const [previewReady, setPreviewReady] = useState(false);
   const ref = useRef(null);
+  const [coverReady, setCoverReady] = useState(false);
   const previewRef = useRef(null);
   const lb  = useLightbox();
 
@@ -41,7 +42,7 @@ export default function VideoCard({
     if (!el) return;
     const obs = new IntersectionObserver(
       ([e]) => { if (e.isIntersecting) { setInView(true); obs.disconnect(); } },
-      { threshold:0.05 }
+      { threshold:0.05, rootMargin:'300px 0px' }
     );
     obs.observe(el);
     return () => obs.disconnect();
@@ -54,6 +55,7 @@ export default function VideoCard({
   };
 
   const derivedThumb = (() => {
+    if (video.poster) return video.poster;
     if (video.thumbnail_url) return video.thumbnail_url;
     const m = (video.embed_url || '').match(/vimeo\.com\/video\/(\d+)/);
     return m ? `https://vumbnail.com/${m[1]}.jpg` : '';
@@ -102,7 +104,18 @@ export default function VideoCard({
 
         {/* The card's resting state: the film's first few seconds on a loop, a
             GIF in everything but format. On hover the same player runs on. */}
-        {inView && (
+        {/* A GIF cut from the film's prime scene. The poster above holds the
+            frame until it has loaded, and the live Vimeo preview is skipped. */}
+        {video.cover ? (inView && (
+          <img
+            src={video.cover} alt="" aria-hidden decoding="async"
+            onLoad={() => setCoverReady(true)}
+            style={{
+              position:'absolute', inset:0, width:'100%', height:'100%',
+              objectFit:'cover', zIndex:2, pointerEvents:'none',
+              opacity: coverReady ? 1 : 0, transition:'opacity 0.4s',
+            }}/>
+        )) : inView && (
           <motion.iframe
             ref={previewRef}
             key={`prev-${video.id}`}
