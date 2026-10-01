@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useLightbox } from '../context/LightboxContext';
 import { useVimeoLoop } from '../hooks/useVimeoLoop';
 import { toPlayerUrl } from '../data/videos';
+import { coverFor } from '../data/workVideos';
 
 function GradientThumb({ video }) {
   const [g1, g2] = video.grad || ['#2a1a0e', '#1a1612'];
@@ -54,8 +55,11 @@ export default function VideoCard({
     lb.open(list, i >= 0 ? i : 0);
   };
 
+  // Cards from older lists carry no cover of their own; look it up by film.
+  const art = video.cover ? video : coverFor(video.embed_url);
+
   const derivedThumb = (() => {
-    if (video.poster) return video.poster;
+    if (art.poster) return art.poster;
     if (video.thumbnail_url) return video.thumbnail_url;
     const m = (video.embed_url || '').match(/vimeo\.com\/video\/(\d+)/);
     return m ? `https://vumbnail.com/${m[1]}.jpg` : '';
@@ -106,9 +110,9 @@ export default function VideoCard({
             GIF in everything but format. On hover the same player runs on. */}
         {/* A GIF cut from the film's prime scene. The poster above holds the
             frame until it has loaded, and the live Vimeo preview is skipped. */}
-        {video.cover ? (inView && (
+        {art.cover ? (inView && (
           <img
-            src={video.cover} alt="" aria-hidden decoding="async"
+            src={art.cover} alt="" aria-hidden decoding="async"
             onLoad={() => setCoverReady(true)}
             style={{
               position:'absolute', inset:0, width:'100%', height:'100%',

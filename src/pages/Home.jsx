@@ -22,7 +22,7 @@ import logoShapoorji from '../assets/shapooriji-logo.png';
 import { motion, AnimatePresence, useInView, useMotionValue, useTransform, useMotionTemplate, useAnimationFrame } from 'framer-motion';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { useSectionSnap } from '../hooks/useSectionSnap';
-import { useVimeoLoop } from '../hooks/useVimeoLoop';
+import { coverFor } from '../data/workVideos';
 import { useLightbox } from '../context/LightboxContext';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -222,13 +222,18 @@ function Hero({ onViewWork, progress }) {
         {/* Warm red-gold film grade applied to the FOOTAGE itself (a CSS filter
             on the video element), so no overlay can ever touch the copy.
             Holds for ~1.4s on load, then grades back to neutral. */}
-        <motion.video autoPlay muted loop playsInline
+        <motion.div
           initial={{ filter: HERO_GRADE }}
           animate={{ filter: [HERO_GRADE, HERO_GRADE, HERO_NEUTRAL] }}
           transition={{ duration: 3.4, times: [0, 0.42, 1], ease: 'easeOut' }}
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}>
-          <source src="/videos/hero.mov" type="video/mp4" />
-        </motion.video>
+          style={{ position: 'absolute', inset: 0 }}>
+          {/* The full hero film as a GIF; its first frame holds the space until it loads. */}
+          <img src="/covers/hero-film.jpg" alt=""
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+          <img src="/covers/hero-film.gif" alt="" aria-hidden decoding="async"
+            onLoad={(e) => { e.currentTarget.style.opacity = 1; }}
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0, transition: 'opacity 0.4s ease' }} />
+        </motion.div>
 
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 30%)' }} />
         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '45%', background: 'linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0) 100%)' }} />
@@ -444,39 +449,9 @@ const PAIR_TIMING = [[0, 0.35], [0.14, 0.48], [0.28, 0.58]];
 function FeaturedShowcase({ outerRef }) {
   const pinRef = useRef(null);
   const videoRef = useRef(null);
-  const videoFrameRef = useRef(null);
   const headingScaleRef = useRef(null);
   const wrapperRefs = useRef([]);
   const isMobile = useIsMobile();
-  const featVid = useNearViewport(videoFrameRef);
-  const featInViewRef = useRef(featVid.inView);
-  featInViewRef.current = featVid.inView;
-
-  // Robustly start the featured film: wait for the Vimeo player's `ready` event
-  // (a bare postMessage before that is ignored — which is why it needed a refresh),
-  // plus a few fallback nudges. Play when on screen, pause when scrolled away.
-  useEffect(() => {
-    const iframe = videoFrameRef.current;
-    if (!iframe) return;
-    const sync = () => {
-      const win = iframe.contentWindow;
-      if (win) win.postMessage(JSON.stringify({ method: featInViewRef.current ? 'play' : 'pause' }), '*');
-    };
-    const onMsg = (e) => {
-      if (typeof e.origin === 'string' && e.origin.indexOf('vimeo') === -1) return;
-      let d; try { d = typeof e.data === 'string' ? JSON.parse(e.data) : e.data; } catch { return; }
-      if (d && d.event === 'ready') sync();
-    };
-    window.addEventListener('message', onMsg);
-    const nudges = [600, 1500, 3000].map((ms) => setTimeout(sync, ms));
-    return () => { window.removeEventListener('message', onMsg); nudges.forEach(clearTimeout); };
-  }, []);
-
-  useEffect(() => {
-    const win = videoFrameRef.current && videoFrameRef.current.contentWindow;
-    if (win) win.postMessage(JSON.stringify({ method: featVid.inView ? 'play' : 'pause' }), '*');
-  }, [featVid.inView]);
-
   useEffect(() => {
     if (!outerRef.current || isMobile) return;   // desktop-only scroll choreography
     const ctx = gsap.context(() => {
@@ -535,13 +510,12 @@ function FeaturedShowcase({ outerRef }) {
     return (
       <section ref={outerRef} style={{ position: 'relative', zIndex: 2, background: '#0a0a0a', padding: '48px 20px 56px' }}>
         <Kicker light>Featured Campaign</Kicker>
-        <div style={{ marginTop: 16, width: '100%', aspectRatio: '16/9', borderRadius: 6, overflow: 'hidden', boxShadow: '0 20px 50px rgba(0,0,0,0.6)' }}>
-          <iframe
-            title="Bambai Dreams — Main Film"
-            src="https://player.vimeo.com/video/1045916243?h=0f88637370&autoplay=1&muted=1&loop=1&background=1"
-            style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
-            allow="autoplay; fullscreen; picture-in-picture"
-          />
+        <div style={{ position: 'relative', marginTop: 16, width: '100%', aspectRatio: '16/9', borderRadius: 6, overflow: 'hidden', boxShadow: '0 20px 50px rgba(0,0,0,0.6)' }}>
+          <img src="/covers/featured-realme-14-series.jpg" alt="Bambai Dreams — Main Film"
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+          <img src="/covers/featured-realme-14-series.gif" alt="" aria-hidden decoding="async"
+            onLoad={(e) => { e.currentTarget.style.opacity = 1; }}
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block', opacity: 0, transition: 'opacity 0.4s ease' }} />
         </div>
         <h2 style={{ margin: '30px 0 0', fontFamily: BB, fontWeight: 900, fontSize: 'clamp(30px,8.5vw,46px)', color: '#fff', lineHeight: 1.02, textTransform: 'uppercase', letterSpacing: '-0.03em' }}>
           Craft · Precision · Purpose
@@ -557,13 +531,11 @@ function FeaturedShowcase({ outerRef }) {
         {/* Video: flex-wrapper centers it horizontally; GSAP handles zoom + vertical slide on inner box */}
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 2 }}>
           <div ref={videoRef} style={{ position: 'relative', width: 'clamp(260px,64vw,880px)', aspectRatio: '16/9', willChange: 'transform', borderRadius: 8, overflow: 'hidden', boxShadow: '0 40px 90px rgba(0,0,0,0.55)' }}>
-            <iframe ref={videoFrameRef}
-              title="Bambai Dreams — Main Film"
-              src="https://player.vimeo.com/video/1045916243?h=0f88637370&autoplay=1&muted=1&loop=1&background=1"
-              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none' }}
-              allow="autoplay; fullscreen; picture-in-picture"
-              allowFullScreen
-            />
+            <img src="/covers/featured-realme-14-series.jpg" alt="Bambai Dreams — Main Film"
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            <img src="/covers/featured-realme-14-series.gif" alt="" aria-hidden decoding="async"
+              onLoad={(e) => { e.currentTarget.style.opacity = 1; }}
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block', opacity: 0, transition: 'opacity 0.4s ease' }} />
             {/* bottom gradient so the caption stays legible without covering the subject */}
             <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 42%)', pointerEvents: 'none' }} />
             {/* caption — small, single line, low on the video (off the subject's face) */}
@@ -602,14 +574,16 @@ function FeaturedShowcase({ outerRef }) {
 ══════════════════════════════════════════════════════════════════ */
 const FEATURED_WORKS = [
   {
-    src: '/videos/section-2/ARMOUR.mp4', title: 'Gold. Grit. Glory.', sub: 'Athlete Campaign', client: 'Under Armour',
+    src: '/videos/section-2/ARMOUR.mp4', gif: '/covers/featured-under-armour.gif', poster: '/covers/featured-under-armour.jpg',
+    title: 'Gold. Grit. Glory.', sub: 'Athlete Campaign', client: 'Under Armour',
     overlay: {
       kind: 'campaign', logo: logoUnderarmour, logoWhite: true,
       line1: 'Gold. Grit. Glory.', line2: 'Athlete Campaign 2023',
     },
   },
   {
-    src: '/videos/section-2/Zoho.mp4', title: 'Built For More', sub: 'Product Film', client: 'Zoho',
+    src: '/videos/section-2/Zoho.mp4', gif: '/covers/featured-zoho.gif', poster: '/covers/featured-zoho.jpg',
+    title: 'Built For More', sub: 'Product Film', client: 'Zoho',
     // Overlay rebuilt in HTML (matching the client's Canva reference) so the
     // lockup stays crisp and never gets cropped with the footage.
     overlay: { logo: zohoMark, line1: 'ZOHO', line2: 'RUN YOUR', accent: 'BUSINESS' },
@@ -620,6 +594,8 @@ const FEATURED_WORKS = [
 // transparent, and the first time its film scrolls into view it rises into
 // place and fades up. It plays once on entry and then stays — the position is
 // not tied to scroll, so it never drifts back out or re-runs on the way past.
+const filmFill = { position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 72%' };
+
 const REVEAL_RISE = 110;   // px the copy travels on the way in
 const REVEAL_EASE = 'cubic-bezier(0.16, 1, 0.3, 1)';
 const REVEAL_MS = 900;
@@ -698,15 +674,18 @@ function FeaturedWorkPanel({ work }) {
   }, [inView, entered]);
   return (
     <div ref={ref} style={{ position: 'absolute', inset: 0, overflow: 'hidden', background: '#0a0a0a' }}>
-      {entered && (
-        // Full-bleed. On viewports wider than 16:9 the crop is vertical, so bias
-        // it downward (object-position 72%) to keep the bottom credits row in
-        // frame — that trims from the top, where there's no baked-in copy.
-        <video ref={vidRef} src={work.src} muted loop playsInline autoPlay preload="auto"
-          style={{
-            position: 'absolute', inset: 0, width: '100%', height: '100%',
-            objectFit: 'cover', objectPosition: 'center 72%'
-          }} />
+      {/* Full-bleed. On viewports wider than 16:9 the crop is vertical, so bias
+          it downward (object-position 72%) to keep the bottom credits row in
+          frame — that trims from the top, where there's no baked-in copy. */}
+      {work.gif ? (<>
+        <img src={work.poster} alt="" style={{ ...filmFill }} />
+        {entered && (
+          <img src={work.gif} alt="" aria-hidden decoding="async"
+            onLoad={(e) => { e.currentTarget.style.opacity = 1; }}
+            style={{ ...filmFill, opacity: 0, transition: 'opacity 0.4s ease' }} />
+        )}
+      </>) : entered && (
+        <video ref={vidRef} src={work.src} muted loop playsInline autoPlay preload="auto" style={filmFill} />
       )}
 
       {work.overlay && (
@@ -974,96 +953,45 @@ function WorkCampaignPanel({ campaign }) {
   );
 }
 
-// Six featured reels — Vimeo (thumbnail poster + background-mode video on hover).
-// Titles are the films' own, as they read on vimeo.com/bambaidreams.
+// Six featured reels — each tile loops a GIF cut from its own film; a click
+// plays the full film. Titles are the films' own, as they read on
+// vimeo.com/bambaidreams.
 const WORK_REELS = [
   { index: '01', title: 'realme 14 Series', sub: 'realme × Shah Rukh Khan', id: '1045916243', h: '0f88637370' },
   { index: '02', title: 'GIVA', sub: 'GIVA × Kriti Sanon', id: '1194918051', h: '76643967c4' },
   { index: '03', title: 'Zindagi Ke Real Heroes', sub: 'OPPO F29 Series 5G · The Durable Champion', id: '1068788543', h: '9a57c4fc4e' },
   { index: '04', title: 'Velocity Elite', sub: 'Under Armour × Vedarth Thapa', id: '1190896661', h: '260b0b94e6' },
   { index: '05', title: 'Velocity Elite', sub: 'Under Armour × Renee Noronha', id: '1183020138', h: '0cb42d51f0' },
-  // zoom: this one is a ~2.2:1 film delivered letterboxed inside a 16:9 frame,
-  // so it plays with black bands over roughly 9% of the height top and bottom.
-  // 1.25 scales the picture past them and fills the tile like the rest.
-  { index: '06', title: 'Imagine IF', sub: 'OPPO × SS Rajamouli · Photography Awards', id: '947795645', h: '85a5df077a', zoom: 1.25 },
+  { index: '06', title: 'Imagine IF', sub: 'OPPO × SS Rajamouli · Photography Awards', id: '947795645', h: '85a5df077a' },
 ];
 
-// 16:9 — the ratio every one of these films is mastered at, so each fills its
-// tile exactly: no letterbox bands, no crop, and all six identical. (The deck
-// drew 407x265 tiles, but that is 1.54 against the films' 1.78 and the mismatch
-// is what put black bands on some of them.)
-const TILE_AR = 16 / 9;
 const TILE_ZOOM = 1.04;      // shared overscan, so no tile shows a seam or a stray edge
 
-// Grid tile: at rest it is just the film's thumbnail. The video mounts on the
-// first hover, plays for as long as the pointer stays, and fades back to the
-// thumbnail on the way out - so nothing streams until someone asks for it.
+// The film's cover: its poster frame shows at once, and the GIF fades in over
+// it as the tile nears the viewport. A film without a cover yet keeps its
+// Vimeo thumbnail.
+function ReelCover({ reel, scale = 1, load = true }) {
+  const art = coverFor(reel.id);
+  const [ready, setReady] = useState(false);
+  const fill = {
+    position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover',
+    transform: `scale(${scale.toFixed(3)})`, transition: 'transform 0.6s ease, opacity 0.4s ease',
+  };
+  return (
+    <>
+      <img src={art.poster || `https://vumbnail.com/${reel.id}.jpg`} alt={reel.title} style={fill} />
+      {art.cover && load && (
+        <img src={art.cover} alt="" aria-hidden decoding="async" onLoad={() => setReady(true)}
+          style={{ ...fill, opacity: ready ? 1 : 0 }} />
+      )}
+    </>
+  );
+}
+
 function WorkTile({ reel, active, onEnter, onLeave }) {
   const tileRef = useRef(null);
-  const iframeRef = useRef(null);
-  const [loaded, setLoaded] = useState(false);
-  const [dims, setDims] = useState({ w: 0, h: 0 });   // the film's true pixel size
-  const { inView, entered } = useNearViewport(tileRef);
+  const { entered } = useNearViewport(tileRef);
   const lb = useLightbox();
-  const aspect = dims.w && dims.h ? dims.w / dims.h : 16 / 9;
-
-  useEffect(() => {
-    const onMsg = (e) => {
-      const win = iframeRef.current && iframeRef.current.contentWindow;
-      if (!win || e.source !== win) return;                 // only our own player
-      let d; try { d = typeof e.data === 'string' ? JSON.parse(e.data) : e.data; } catch { return; }
-      if (!d) return;
-      if (d.event === 'ready') {
-        win.postMessage(JSON.stringify({ method: 'getVideoWidth' }), '*');
-        win.postMessage(JSON.stringify({ method: 'getVideoHeight' }), '*');
-      }
-      if (d.method === 'getVideoWidth') setDims((p) => ({ ...p, w: d.value }));
-      if (d.method === 'getVideoHeight') setDims((p) => ({ ...p, h: d.value }));
-    };
-    window.addEventListener('message', onMsg);
-    return () => window.removeEventListener('message', onMsg);
-  }, []);
-
-  // A background embed never emits 'ready' - that event only goes to embeds that
-  // opt into the JS API - so the handshake above can't start on its own. Ask for
-  // the size once the frame loads and keep asking until the player answers.
-  // Without the true frame size the tile assumes 16:9, and the player then
-  // letterboxes anything wider inside it: that is where the black bands on some
-  // tiles came from.
-  useEffect(() => {
-    if (!loaded || (dims.w && dims.h)) return;
-    const ask = () => {
-      const win = iframeRef.current && iframeRef.current.contentWindow;
-      if (!win) return;
-      win.postMessage(JSON.stringify({ method: 'getVideoWidth' }), '*');
-      win.postMessage(JSON.stringify({ method: 'getVideoHeight' }), '*');
-    };
-    ask();
-    let tries = 0;
-    const t = setInterval(() => { if (++tries > 12) clearInterval(t); else ask(); }, 400);
-    return () => clearInterval(t);
-  }, [loaded, dims.w, dims.h]);
-
-  // Cover the tile in plain percentages of the tile box rather than container
-  // query units: cqw/cqh resolve to zero wherever the container's own size is
-  // still being worked out, which left the frame short of the tile and read as a
-  // letterbox band. Percentages against the tile resolve the same everywhere, so
-  // all six films end up at identical rendered dimensions.
-  const zoom = TILE_ZOOM * (reel.zoom || 1);
-  const cover = aspect >= TILE_AR
-    ? { width: `${(100 * zoom * aspect / TILE_AR).toFixed(2)}%`, height: `${(100 * zoom).toFixed(2)}%` }
-    : { width: `${(100 * zoom).toFixed(2)}%`, height: `${(100 * zoom * TILE_AR / aspect).toFixed(2)}%` };
-
-  // At rest the tile runs the film's first few seconds on a loop — a GIF in
-  // everything but format. Hovering lets the same player run on into the film.
-  useVimeoLoop(iframeRef, { ready: loaded && inView, full: active });
-
-  // Scrolled away entirely: stop, so off-screen tiles aren't streaming.
-  useEffect(() => {
-    if (inView) return;
-    const win = iframeRef.current && iframeRef.current.contentWindow;
-    if (win) win.postMessage(JSON.stringify({ method: 'pause' }), '*');
-  }, [inView]);
 
   const openPlayer = () => {
     const list = WORK_REELS.map((r) => ({
@@ -1083,33 +1011,11 @@ function WorkTile({ reel, active, onEnter, onLeave }) {
         boxShadow: active ? '0 0 32px rgba(255,255,255,0.28)' : '0 0 0 rgba(255,255,255,0)',
         transition: 'box-shadow 0.35s ease, outline-color 0.35s ease',
         position: 'relative', overflow: 'hidden', borderRadius: 14, cursor: 'pointer', background: '#111',
-        // the frame inside is transformed and oversized; isolating the tile keeps
-        // it on the same compositing layer so the rounded corners actually clip it
+        // isolating the tile keeps the scaled cover on the same compositing
+        // layer so the rounded corners actually clip it
         isolation: 'isolate',
       }}>
-      {/* thumbnail — the tile's resting state, and what the video fades back to */}
-      <img src={`https://vumbnail.com/${reel.id}.jpg`} alt={reel.title}
-        style={{
-          position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover',
-          transform: `scale(${(zoom * (active ? 1 : 1.04)).toFixed(3)})`,
-          transition: 'transform 0.6s ease'
-        }} />
-
-      {/* video — mounts as the tile nears the viewport and becomes the tile's
-          resting state: a looping 3s teaser that runs on into the film on hover.
-          The thumbnail underneath covers the gap until it has buffered. */}
-      {entered && (
-        <iframe ref={iframeRef} title={reel.title} loading="lazy"
-          onLoad={() => setLoaded(true)}
-          src={`https://player.vimeo.com/video/${reel.id}?h=${reel.h}&background=1&autoplay=1&muted=1&loop=1`}
-          style={{
-            position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
-            width: cover.width, height: cover.height,
-            border: 'none', pointerEvents: 'none',
-            opacity: loaded ? 1 : 0, transition: 'opacity 0.4s ease'
-          }}
-          allow="autoplay; fullscreen; picture-in-picture" />
-      )}
+      <ReelCover reel={reel} load={entered} scale={TILE_ZOOM * (active ? 1 : 1.04)} />
 
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(10,10,10,0.88) 0%, rgba(10,10,10,0.15) 48%, transparent 74%)' }} />
 
@@ -1128,10 +1034,11 @@ function WorkTile({ reel, active, onEnter, onLeave }) {
 }
 
 function MobileWorkCard({ reel }) {
+  const ref = useRef(null);
+  const { entered } = useNearViewport(ref);
   return (
-    <div style={{ position: 'relative', height: '48vh', overflow: 'hidden' }}>
-      <img src={`https://vumbnail.com/${reel.id}.jpg`} alt={reel.title}
-        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+    <div ref={ref} style={{ position: 'relative', height: '48vh', overflow: 'hidden' }}>
+      <ReelCover reel={reel} load={entered} />
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(10,10,10,0.9) 0%, transparent 60%)' }} />
       <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: '20px' }}>
         <span style={{ fontFamily: MR, fontSize: 11, letterSpacing: '0.14em', color: 'rgba(255,255,255,0.7)' }}>{reel.index}</span>
@@ -1580,14 +1487,7 @@ function ServiceCategoryRow({ cat }) {
   const [videoReady, setVideoReady] = useState(false);
   const mediaRef = useRef(null);
   const media = useNearViewport(mediaRef);
-  const svcIframeRef = useRef(null);
-
-  // Pause the service video when it scrolls off-screen; play when back in view.
-  useEffect(() => {
-    const win = svcIframeRef.current && svcIframeRef.current.contentWindow;
-    if (!win) return;
-    win.postMessage(JSON.stringify({ method: media.inView ? 'play' : 'pause' }), '*');
-  }, [media.inView]);
+  const art = cat.video ? coverFor(cat.video.id) : {};
 
   // Slide-up-from-bottom reveal, staggered top→down.
   const EASE_OUT = [0.16, 1, 0.3, 1];
@@ -1597,8 +1497,8 @@ function ServiceCategoryRow({ cat }) {
     transition: { duration: 0.75, ease: EASE_OUT, delay: 0.06 * i },
   });
 
-  // Prefer the video's own thumbnail as the poster; the category image is the fallback (no video).
-  const posterSrc = cat.video ? `https://vumbnail.com/${cat.video.id}.jpg` : cat.image;
+  // The film's own poster frame first; the category image is the fallback (no video).
+  const posterSrc = art.poster || cat.image;
   const image = (
     <motion.div
       initial={{ opacity: 0, clipPath: 'inset(14% 0% 0% 0%)' }}
@@ -1613,17 +1513,14 @@ function ServiceCategoryRow({ cat }) {
         )}
         {!posterSrc && <div style={{ position: 'absolute', inset: 0, background: 'rgba(17,17,17,0.04)' }} />}
 
-        {cat.video && media.entered && (
-          // Vimeo background video — mounts only near the viewport; covers via container units; fades in on load
-          <iframe ref={svcIframeRef} title={cat.title.replace('\n', ' ')} loading="lazy"
+        {art.cover && media.entered && (
+          // The film's GIF cover — loads only near the viewport and fades in over the poster
+          <img src={art.cover} alt="" aria-hidden decoding="async"
             onLoad={() => setVideoReady(true)}
-            src={`https://player.vimeo.com/video/${cat.video.id}?h=${cat.video.h}&background=1&autoplay=1&muted=1&loop=1${cat.video.start ? `#t=${cat.video.start}s` : ''}`}
             style={{
-              position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
-              width: 'max(100cqw, 177.78cqh)', height: 'max(56.25cqw, 100cqh)', border: 'none', pointerEvents: 'none',
+              position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block',
               opacity: videoReady ? 1 : 0, transition: 'opacity 0.5s ease'
-            }}
-            allow="autoplay; fullscreen; picture-in-picture" />
+            }} />
         )}
       </div>
     </motion.div>
