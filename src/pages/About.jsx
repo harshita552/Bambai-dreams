@@ -70,7 +70,7 @@ function PillarCard({ p, i, pillarsInView }) {
       onMouseLeave={() => setHov(false)}
       style={{
         position: 'relative',
-        padding: 'clamp(32px,4vw,52px)',
+        padding: 'clamp(32px, 4vw, calc(52px * var(--k)))',
         background: '#f7f5f0',
         borderTop: '3px solid var(--yellow)',
         overflow: 'hidden',
@@ -89,10 +89,10 @@ function PillarCard({ p, i, pillarsInView }) {
           zIndex: 0,
         }}/>
 
-      <p style={{ position: 'relative', zIndex: 1, fontFamily: BB, fontWeight: 700, fontSize: 'clamp(24px,3vw,36px)', color: hov ? '#fff' : '#1a1209', textTransform: 'uppercase', marginBottom: 20, transition: 'color 0.2s ease 0.15s' }}>
+      <p style={{ position: 'relative', zIndex: 1, fontFamily: BB, fontWeight: 700, fontSize: 'max(clamp(24px, 3vw, calc(36px * var(--k))), var(--fs-min))', color: hov ? '#fff' : '#1a1209', textTransform: 'uppercase', marginBottom: 20, transition: 'color 0.2s ease 0.15s' }}>
         {p.title}
       </p>
-      <p style={{ position: 'relative', zIndex: 1, fontFamily: MR, fontWeight: 400, fontSize: 'clamp(14px,1.4vw,16px)', color: hov ? 'rgba(255,255,255,0.65)' : 'rgba(26,18,9,0.6)', lineHeight: 1.7, transition: 'color 0.2s ease 0.15s' }}>
+      <p style={{ position: 'relative', zIndex: 1, fontFamily: MR, fontWeight: 400, fontSize: 'max(clamp(calc(14px * var(--fm)), 1.4vw, calc(16px * var(--k))), var(--fs-min))', color: hov ? 'rgba(255,255,255,0.65)' : 'rgba(26,18,9,0.6)', lineHeight: 1.7, transition: 'color 0.2s ease 0.15s' }}>
         {p.body}
       </p>
     </motion.div>
@@ -107,11 +107,11 @@ function StatBox({ num, label, delay }) {
       initial={{ opacity: 0, y: 20 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.55, delay }}
-      style={{ padding: 'clamp(24px,3vw,40px)', borderLeft: '3px solid var(--yellow)' }}>
-      <p style={{ fontFamily: BB, fontWeight: 700, fontSize: 'clamp(44px,7.5vw,80px)', color: '#1a1209', lineHeight: 1, margin: 0 }}>
+      style={{ padding: 'clamp(24px, 3vw, calc(40px * var(--k)))', borderLeft: '3px solid var(--yellow)' }}>
+      <p style={{ fontFamily: BB, fontWeight: 700, fontSize: 'max(clamp(44px, 7.5vw, calc(80px * var(--k))), var(--fs-min))', color: '#1a1209', lineHeight: 1, margin: 0 }}>
         {num}
       </p>
-      <p style={{ fontFamily: MR, fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(26,18,9,0.45)', marginTop: 8 }}>
+      <p style={{ fontFamily: MR, fontSize: 'max(calc(10px * var(--k) * var(--fm)), var(--fs-min))', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(26,18,9,0.45)', marginTop: 8 }}>
         {label}
       </p>
     </motion.div>
@@ -137,7 +137,7 @@ export default function About() {
       {/* ── Hero statement ────────────────────────────────────────── */}
       <section ref={heroRef} style={{
         minHeight: '70vh', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
-        padding: 'clamp(80px,10vw,130px) clamp(24px,5vw,80px) clamp(60px,8vw,96px)',
+        padding: 'clamp(80px, 10vw, calc(130px * var(--k))) clamp(24px, 5vw, calc(80px * var(--k))) clamp(60px, 8vw, calc(96px * var(--k)))',
         background: '#f7f5f0', borderBottom: '1px solid rgba(0,0,0,0.1)',
         position: 'relative', overflow: 'hidden',
       }}>
@@ -149,7 +149,7 @@ export default function About() {
         <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.8 }}
           style={{
             fontFamily: BB, fontWeight: 700, textTransform: 'uppercase',
-            fontSize: 'clamp(44px,9.5vw,128px)', color: '#1a1209',
+            fontSize: 'max(clamp(44px, 9.5vw, calc(128px * var(--k))), var(--fs-min))', color: '#1a1209',
             lineHeight: 0.88, margin: '0 0 28px', position: 'relative', zIndex: 1,
           }}>
           WHERE WE TURN<br />
@@ -159,31 +159,31 @@ export default function About() {
         </motion.h1>
 
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }}
-          style={{ fontFamily: MR, fontWeight: 500, fontSize: 'clamp(14px,1.6vw,18px)', color: 'rgba(26,18,9,0.55)', textTransform: 'uppercase', letterSpacing: '0.04em', maxWidth: 480, position: 'relative', zIndex: 1 }}>
+          style={{ fontFamily: MR, fontWeight: 500, fontSize: 'max(clamp(calc(14px * var(--fm)), 1.6vw, calc(18px * var(--k))), var(--fs-min))', color: 'rgba(26,18,9,0.55)', textTransform: 'uppercase', letterSpacing: '0.04em', maxWidth: 'calc(480px * var(--k))', position: 'relative', zIndex: 1 }}>
           A full-service creative production house. Bold ideas, flawless execution, unforgettable frames.
         </motion.p>
       </section>
 
       {/* ── Who We Are — dark break, full deck copy ───────────────── */}
-      <section style={{ background: '#0a0a0a', padding: 'clamp(64px,9vw,120px) clamp(24px,5vw,80px)' }}>
-        <div style={{ maxWidth: 1180, margin: '0 auto', display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,320px),1fr))', gap: 'clamp(32px,5vw,80px)', alignItems: 'start' }}>
+      <section style={{ background: '#0a0a0a', padding: 'clamp(64px, 9vw, calc(120px * var(--k))) clamp(24px, 5vw, calc(80px * var(--k)))' }}>
+        <div style={{ maxWidth: 'calc(1180px * var(--k))', margin: '0 auto', display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,320px),1fr))', gap: 'clamp(32px, 5vw, calc(80px * var(--k)))', alignItems: 'start' }}>
           <div>
-            <p style={{ fontFamily: DM, fontSize: 10, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--yellow)', margin: '0 0 22px' }}>
+            <p style={{ fontFamily: DM, fontSize: 'max(calc(10px * var(--k) * var(--fm)), var(--fs-min))', letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--yellow)', margin: '0 0 22px' }}>
               ✦ WHO WE ARE
             </p>
-            <h2 style={{ fontFamily: BB, fontWeight: 700, fontSize: 'clamp(40px,6vw,86px)', color: '#fff',
+            <h2 style={{ fontFamily: BB, fontWeight: 700, fontSize: 'max(clamp(40px, 6vw, calc(86px * var(--k))), var(--fs-min))', color: '#fff',
               textTransform: 'uppercase', lineHeight: 0.9, margin: 0 }}>
               PRODUCTION<br />FIRST.<br />
               <span style={{ color: 'var(--yellow)' }}>STORY ALWAYS.</span>
             </h2>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(16px,2.2vw,26px)', paddingTop: 'clamp(0px,2vw,38px)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.2vw, calc(26px * var(--k)))', paddingTop: 'clamp(0px, 2vw, calc(38px * var(--k)))' }}>
             {WHO_WE_ARE.map((para, i) => (
               <motion.p key={i}
                 initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.3 }} transition={{ delay: i * 0.12, duration: 0.6 }}
-                style={{ margin: 0, fontFamily: MR, fontWeight: 400, fontSize: 'clamp(14px,1.35vw,17px)',
+                style={{ margin: 0, fontFamily: MR, fontWeight: 400, fontSize: 'max(clamp(calc(14px * var(--fm)), 1.35vw, calc(17px * var(--k))), var(--fs-min))',
                   lineHeight: 1.75, color: i === 0 ? 'rgba(255,255,255,0.82)' : 'rgba(255,255,255,0.55)' }}>
                 {para}
               </motion.p>
@@ -194,10 +194,10 @@ export default function About() {
 
       {/* ── Who / What / How ──────────────────────────────────────── */}
       <section ref={pillarsRef} style={{
-        background: '#eeece7', padding: 'clamp(60px,8vw,96px) clamp(24px,5vw,80px)',
+        background: '#eeece7', padding: 'clamp(60px, 8vw, calc(96px * var(--k))) clamp(24px, 5vw, calc(80px * var(--k)))',
         borderBottom: '1px solid rgba(0,0,0,0.1)',
       }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,280px),1fr))', gap: 'clamp(2px,0.3vw,4px)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,280px),1fr))', gap: 'clamp(2px, 0.3vw, calc(4px * var(--k)))' }}>
           {PILLARS.map((p, i) => (
             <PillarCard key={p.title} p={p} i={i} pillarsInView={pillarsInView} />
           ))}
@@ -206,11 +206,11 @@ export default function About() {
 
       {/* ── Stats ────────────────────────────────────────────────── */}
       <section ref={statsRef} style={{
-        background: '#f7f5f0', padding: 'clamp(60px,8vw,96px) clamp(24px,5vw,80px)',
+        background: '#f7f5f0', padding: 'clamp(60px, 8vw, calc(96px * var(--k))) clamp(24px, 5vw, calc(80px * var(--k)))',
         borderBottom: '1px solid rgba(0,0,0,0.1)',
       }}>
         <motion.p initial={{ opacity: 0, y: 8 }} animate={statsInView ? { opacity: 1, y: 0 } : {}}
-          style={{ fontFamily: DM, fontSize: 10, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--yellow)', marginBottom: 40 }}>
+          style={{ fontFamily: DM, fontSize: 'max(calc(10px * var(--k) * var(--fm)), var(--fs-min))', letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--yellow)', marginBottom: 40 }}>
           ✦ BY THE NUMBERS
         </motion.p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: 2 }}>
@@ -219,8 +219,8 @@ export default function About() {
       </section>
 
       {/* ── Skills ───────────────────────────────────────────────── */}
-      <section style={{ background: '#eeece7', padding: 'clamp(60px,8vw,96px) clamp(24px,5vw,80px)', borderBottom: '1px solid rgba(0,0,0,0.1)' }}>
-        <p style={{ fontFamily: DM, fontSize: 10, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--yellow)', marginBottom: 40 }}>
+      <section style={{ background: '#eeece7', padding: 'clamp(60px, 8vw, calc(96px * var(--k))) clamp(24px, 5vw, calc(80px * var(--k)))', borderBottom: '1px solid rgba(0,0,0,0.1)' }}>
+        <p style={{ fontFamily: DM, fontSize: 'max(calc(10px * var(--k) * var(--fm)), var(--fs-min))', letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--yellow)', marginBottom: 40 }}>
           ✦ OUR SKILLS
         </p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))', gap: 2 }}>
@@ -230,34 +230,34 @@ export default function About() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, amount: 0.3 }}
               transition={{ delay: i * 0.05 }}
-              style={{ padding: 'clamp(18px,2vw,26px) clamp(20px,2.5vw,32px)', background: '#f7f5f0', borderLeft: '2px solid rgba(184,134,11,0.3)', display: 'flex', alignItems: 'center', gap: 14 }}>
-              <span style={{ color: 'var(--yellow)', fontSize: 18, lineHeight: 1 }}>✦</span>
-              <span style={{ fontFamily: MR, fontWeight: 700, fontSize: 'clamp(13px,1.3vw,15px)', color: '#1a1209', textTransform: 'uppercase', letterSpacing: '0.02em' }}>{skill}</span>
+              style={{ padding: 'clamp(18px, 2vw, calc(26px * var(--k))) clamp(20px, 2.5vw, calc(32px * var(--k)))', background: '#f7f5f0', borderLeft: '2px solid rgba(184,134,11,0.3)', display: 'flex', alignItems: 'center', gap: 14 }}>
+              <span style={{ color: 'var(--yellow)', fontSize: 'max(calc(18px * var(--k) * var(--fm)), var(--fs-min))', lineHeight: 1 }}>✦</span>
+              <span style={{ fontFamily: MR, fontWeight: 700, fontSize: 'max(clamp(calc(13px * var(--fm)), 1.3vw, calc(15px * var(--k))), var(--fs-min))', color: '#1a1209', textTransform: 'uppercase', letterSpacing: '0.02em' }}>{skill}</span>
             </motion.div>
           ))}
         </div>
       </section>
 
       {/* ── Founder — minimal visiting card ──────────────────────── */}
-      <section style={{ background: '#eeece7', padding: 'clamp(64px,9vw,120px) clamp(24px,5vw,80px)',
+      <section style={{ background: '#eeece7', padding: 'clamp(64px, 9vw, calc(120px * var(--k))) clamp(24px, 5vw, calc(80px * var(--k)))',
         display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         {/* Header — eyebrow row · rule · subheading */}
-        <div style={{ width: '100%', maxWidth: 1180, margin: '0 0 clamp(56px,9vh,110px)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16, paddingBottom: 'clamp(14px,2vh,24px)' }}>
+        <div style={{ width: '100%', maxWidth: 'calc(1180px * var(--k))', margin: '0 0 clamp(56px, 9vh, calc(110px * var(--k)))' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, paddingBottom: 'clamp(14px, 2vh, calc(24px * var(--k)))' }}>
             <span aria-hidden style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--yellow)', flexShrink: 0 }} />
-            <span style={{ fontFamily: BB, fontWeight: 500, fontSize: 'clamp(26px,3vw,38px)', lineHeight: 1.15, color: 'rgba(26,18,9,0.5)' }}>
+            <span style={{ fontFamily: BB, fontWeight: 500, fontSize: 'max(clamp(26px, 3vw, calc(38px * var(--k))), var(--fs-min))', lineHeight: 1.15, color: 'rgba(26,18,9,0.5)' }}>
               Founder
             </span>
             <span aria-hidden style={{ width: 1, alignSelf: 'stretch', background: 'rgba(26,18,9,0.22)' }} />
-            <span style={{ fontFamily: MR, fontWeight: 400, fontSize: 'clamp(13px,1.3vw,17px)', lineHeight: 1.4, color: 'rgba(26,18,9,0.7)' }}>
+            <span style={{ fontFamily: MR, fontWeight: 400, fontSize: 'max(clamp(calc(13px * var(--fm)), 1.3vw, calc(17px * var(--k))), var(--fs-min))', lineHeight: 1.4, color: 'rgba(26,18,9,0.7)' }}>
               leadership
             </span>
           </div>
 
           <div aria-hidden style={{ height: 1, background: 'rgba(26,18,9,0.14)', width: '100%' }} />
 
-          <p style={{ margin: 'clamp(16px,2.4vh,28px) 0 0', fontFamily: MR, fontWeight: 500,
-            fontSize: 'clamp(13px,1.4vw,19px)', lineHeight: 1.3, color: 'rgba(26,18,9,0.5)',
+          <p style={{ margin: 'clamp(16px, 2.4vh, calc(28px * var(--k))) 0 0', fontFamily: MR, fontWeight: 500,
+            fontSize: 'max(clamp(calc(13px * var(--fm)), 1.4vw, calc(19px * var(--k))), var(--fs-min))', lineHeight: 1.3, color: 'rgba(26,18,9,0.5)',
             whiteSpace: 'nowrap' }}>
             Leading Bambai Dreams from idea to screen.
           </p>
@@ -268,10 +268,10 @@ export default function About() {
           viewport={{ once: true, amount: 0.3 }}
           whileHover={{ y: -8, boxShadow: '0 46px 90px rgba(0,0,0,0.20)' }}
           style={{
-            width: '100%', maxWidth: 660, aspectRatio: '1.75 / 1',
+            width: '100%', maxWidth: 'calc(660px * var(--k))', aspectRatio: '1.75 / 1',
             background: '#ffffff', color: '#111',
-            padding: 'clamp(22px,3.2vw,40px)',
-            display: 'flex', alignItems: 'center', gap: 'clamp(20px,3vw,40px)',
+            padding: 'clamp(22px, 3.2vw, calc(40px * var(--k)))',
+            display: 'flex', alignItems: 'center', gap: 'clamp(20px, 3vw, calc(40px * var(--k)))',
             boxShadow: '0 30px 70px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.06)',
             borderRadius: 12,
             position: 'relative', overflow: 'hidden',
@@ -281,24 +281,24 @@ export default function About() {
 
           {/* left — logo + wordmark */}
           <motion.div variants={CARD_ITEM} style={{ flex: '0 0 42%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12,
-            borderRight: '1px solid rgba(0,0,0,0.09)', paddingRight: 'clamp(16px,2.4vw,32px)', alignSelf: 'stretch' }}>
-            <img src={logoDark} alt="Bambai Dreams" style={{ width: '100%', maxWidth: 240, height: 'auto', objectFit: 'contain' }} />
+            borderRight: '1px solid rgba(0,0,0,0.09)', paddingRight: 'clamp(16px, 2.4vw, calc(32px * var(--k)))', alignSelf: 'stretch' }}>
+            <img src={logoDark} alt="Bambai Dreams" style={{ width: '100%', maxWidth: 'calc(240px * var(--k))', height: 'auto', objectFit: 'contain' }} />
           </motion.div>
 
           {/* right — identity + contact, filling the full card height */}
           <motion.div style={{ flex: 1, minWidth: 0, alignSelf: 'stretch', display: 'flex', flexDirection: 'column',
-            justifyContent: 'space-between', paddingTop: 'clamp(4px,0.8vw,10px)', paddingBottom: 'clamp(4px,0.8vw,10px)' }}>
+            justifyContent: 'space-between', paddingTop: 'clamp(4px, 0.8vw, calc(10px * var(--k)))', paddingBottom: 'clamp(4px, 0.8vw, calc(10px * var(--k)))' }}>
             <motion.div variants={CARD_ITEM}>
-              <p style={{ margin: 0, fontFamily: BB, fontWeight: 700, fontSize: 'clamp(22px,3.1vw,38px)',
+              <p style={{ margin: 0, fontFamily: BB, fontWeight: 700, fontSize: 'max(clamp(22px, 3.1vw, calc(38px * var(--k))), var(--fs-min))',
                 lineHeight: 1.05, textTransform: 'uppercase', color: '#111' }}>Satvant Singh</p>
-              <p style={{ margin: '5px 0 0', fontFamily: MR, fontWeight: 500, fontSize: 'clamp(9px,0.92vw,11px)',
+              <p style={{ margin: '5px 0 0', fontFamily: MR, fontWeight: 500, fontSize: 'max(clamp(calc(9px * var(--fm)), 0.92vw, calc(11px * var(--k))), var(--fs-min))',
                 letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(17,17,17,0.45)' }}>
                 Founder &amp; Creative Director
               </p>
-              <div aria-hidden style={{ height: 2, width: 44, background: 'var(--yellow)', marginTop: 'clamp(10px,1.4vw,16px)' }} />
+              <div aria-hidden style={{ height: 2, width: 44, background: 'var(--yellow)', marginTop: 'clamp(10px, 1.4vw, calc(16px * var(--k)))' }} />
             </motion.div>
 
-            <motion.div variants={CARD_ITEM} style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(6px,0.9vw,10px)' }}>
+            <motion.div variants={CARD_ITEM} style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(6px, 0.9vw, calc(10px * var(--k)))' }}>
               {[
                 { href: 'tel:+919795000555',  label: '+91 9795 000 555', icon: 'phone' },
                 { href: 'tel:+919820538238',  label: '+91 9820 538 238', icon: 'phone' },
@@ -313,7 +313,7 @@ export default function About() {
                         : <><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" /><path d="m22 6-10 7L2 6" /></>}
                     </svg>
                   </span>
-                  <span style={{ fontFamily: MR, fontWeight: 400, fontSize: 'clamp(10px,1vw,13px)',
+                  <span style={{ fontFamily: MR, fontWeight: 400, fontSize: 'max(clamp(calc(10px * var(--fm)), 1vw, calc(13px * var(--k))), var(--fs-min))',
                     color: 'rgba(17,17,17,0.68)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {c.label}
                   </span>
@@ -323,9 +323,9 @@ export default function About() {
 
             {/* footer — website + base, anchors the bottom of the card */}
             <motion.div variants={CARD_ITEM} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
-              borderTop: '1px solid rgba(0,0,0,0.09)', paddingTop: 'clamp(8px,1.2vw,14px)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px,1vw,12px)' }}>
-                <span style={{ fontFamily: MR, fontWeight: 500, fontSize: 'clamp(9px,0.9vw,12px)',
+              borderTop: '1px solid rgba(0,0,0,0.09)', paddingTop: 'clamp(8px, 1.2vw, calc(14px * var(--k)))' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px, 1vw, calc(12px * var(--k)))' }}>
+                <span style={{ fontFamily: MR, fontWeight: 500, fontSize: 'max(clamp(calc(9px * var(--fm)), 0.9vw, calc(12px * var(--k))), var(--fs-min))',
                   letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(17,17,17,0.5)', whiteSpace: 'nowrap' }}>
                   Find us on&nbsp;:
                 </span>
@@ -362,7 +362,7 @@ export default function About() {
                   </svg>
                 </a>
               </div>
-              <span style={{ fontFamily: MR, fontWeight: 400, fontSize: 'clamp(9px,0.9vw,12px)',
+              <span style={{ fontFamily: MR, fontWeight: 400, fontSize: 'max(clamp(calc(9px * var(--fm)), 0.9vw, calc(12px * var(--k))), var(--fs-min))',
                 letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(17,17,17,0.42)' }}>
                 Mumbai, India
               </span>

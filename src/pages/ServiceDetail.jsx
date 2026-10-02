@@ -11,10 +11,10 @@ export default function ServiceDetail() {
 
   if (!service) return (
     <div style={{ paddingTop: 120, textAlign: 'center' }}>
-      <p style={{ fontFamily: '"Playfair Display",serif', fontSize: 24, color: 'var(--ink)', marginBottom: 20 }}>
+      <p style={{ fontFamily: '"Playfair Display",serif', fontSize: 'max(calc(24px * var(--k)), var(--fs-min))', color: 'var(--ink)', marginBottom: 20 }}>
         Service not found.
       </p>
-      <Link to="/services" style={{ color: 'var(--gold)', fontFamily: '"DM Sans",sans-serif', fontSize: 11, letterSpacing: '0.15em', textTransform: 'uppercase' }}>
+      <Link to="/services" style={{ color: 'var(--gold)', fontFamily: '"DM Sans",sans-serif', fontSize: 'max(calc(11px * var(--k) * var(--fm)), var(--fs-min))', letterSpacing: '0.15em', textTransform: 'uppercase' }}>
         ← All Services
       </Link>
     </div>
@@ -34,7 +34,7 @@ export default function ServiceDetail() {
       <section style={{
         minHeight: '72vh', background: 'var(--ink)',
         display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
-        padding: 'clamp(80px,10vw,120px) clamp(24px,5vw,64px) clamp(48px,6vw,72px)',
+        padding: 'clamp(80px, 10vw, calc(120px * var(--k))) clamp(24px, 5vw, calc(64px * var(--k))) clamp(48px, 6vw, calc(72px * var(--k)))',
         borderBottom: '3px double rgba(245,240,232,0.2)',
         position: 'relative', overflow: 'hidden',
       }}>
@@ -43,7 +43,7 @@ export default function ServiceDetail() {
           position: 'absolute', top: '50%', left: '50%',
           transform: 'translate(-50%,-50%)',
           fontFamily: '"Playfair Display",serif', fontWeight: 900,
-          fontSize: 'clamp(100px,28vw,260px)', color: 'var(--cream)',
+          fontSize: 'max(clamp(100px, 28vw, calc(260px * var(--k))), var(--fs-min))', color: 'var(--cream)',
           opacity: 0.04, userSelect: 'none', whiteSpace: 'nowrap',
         }}>{service.number}</span>
 
@@ -54,18 +54,18 @@ export default function ServiceDetail() {
         <motion.h1 initial={{ opacity: 0, y: 36 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
           style={{
             fontFamily: '"Playfair Display",serif', fontWeight: 900,
-            fontSize: 'clamp(44px,10vw,120px)', color: 'var(--cream)',
+            fontSize: 'max(clamp(44px, 10vw, calc(120px * var(--k))), var(--fs-min))', color: 'var(--cream)',
             lineHeight: 0.95, marginBottom: 22,
           }}>{service.name}</motion.h1>
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}
           style={{
             fontFamily: '"IM Fell English",serif', fontStyle: 'italic',
-            fontSize: 20, color: 'var(--ink-light)', maxWidth: 480, marginBottom: 40,
+            fontSize: 'max(calc(20px * var(--k)), var(--fs-min))', color: 'var(--ink-light)', maxWidth: 'calc(480px * var(--k))', marginBottom: 40,
           }}>{service.tagline}</motion.p>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>
           <Link to="/services"
             style={{
-              fontFamily: '"DM Sans",sans-serif', fontSize: 10,
+              fontFamily: '"DM Sans",sans-serif', fontSize: 'max(calc(10px * var(--k) * var(--fm)), var(--fs-min))',
               letterSpacing: '0.18em', textTransform: 'uppercase',
               color: 'var(--gold)', textDecoration: 'none',
             }}>← All Services</Link>
@@ -73,11 +73,11 @@ export default function ServiceDetail() {
       </section>
 
       {/* Video grid */}
-      <section style={{ padding: 'clamp(48px,6vw,80px) clamp(20px,4vw,48px)', background: 'var(--cream)' }}>
+      <section style={{ padding: 'clamp(48px, 6vw, calc(80px * var(--k))) clamp(20px, 4vw, calc(48px * var(--k)))', background: 'var(--cream)' }}>
         {related.length === 0 ? (
           <p style={{
             fontFamily: '"IM Fell English",serif', fontStyle: 'italic',
-            color: 'var(--ink-light)', fontSize: 18, textAlign: 'center', padding: '60px 0',
+            color: 'var(--ink-light)', fontSize: 'max(calc(18px * var(--k) * var(--fm)), var(--fs-min))', textAlign: 'center', padding: '60px 0',
           }}>More work in this category coming soon.</p>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(280px,1fr))', gap: 3 }}>

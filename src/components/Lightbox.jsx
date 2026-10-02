@@ -20,7 +20,7 @@ export default function Lightbox() {
             background: 'rgba(26,22,18,0.96)',
             backdropFilter: 'blur(14px)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            padding: 'clamp(12px,3vw,20px) clamp(12px,5vw,70px)',
+            padding: 'clamp(12px, 3vw, calc(20px * var(--k))) clamp(12px, 5vw, calc(70px * var(--k)))',
             cursor: 'pointer',
           }}>
 
@@ -40,7 +40,7 @@ export default function Lightbox() {
             exit={{ scale: 0.9,  opacity: 0, rotate: 2 }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
             onClick={e => e.stopPropagation()}
-            style={{ width: '100%', maxWidth: 1100, position: 'relative', cursor: 'default' }}>
+            style={{ width: '100%', maxWidth: 'calc(1100px * var(--k))', position: 'relative', cursor: 'default' }}>
 
             {/* Close */}
             <motion.button whileHover={{ color: 'var(--gold)' }}
@@ -49,10 +49,10 @@ export default function Lightbox() {
                 position: 'absolute', top: -42, right: 0,
                 background: 'none', border: 'none',
                 color: 'var(--cream)', cursor: 'pointer',
-                fontFamily: '"DM Sans",sans-serif', fontSize: 13,
+                fontFamily: '"DM Sans",sans-serif', fontSize: 'max(calc(13px * var(--k) * var(--fm)), var(--fs-min))',
                 letterSpacing: '0.15em', display: 'flex', alignItems: 'center', gap: 6,
               }}>
-              ✕ <span style={{ letterSpacing: '0.2em', textTransform: 'uppercase', fontSize: 9 }}>Close</span>
+              ✕ <span style={{ letterSpacing: '0.2em', textTransform: 'uppercase', fontSize: 'max(calc(9px * var(--k) * var(--fm)), var(--fs-min))' }}>Close</span>
             </motion.button>
 
             {/* 16:9 iframe */}
@@ -73,18 +73,18 @@ export default function Lightbox() {
               <div>
                 <p style={{
                   fontFamily: '"Playfair Display",serif', fontStyle: 'italic',
-                  fontSize: 18, color: 'var(--cream)',
+                  fontSize: 'max(calc(18px * var(--k) * var(--fm)), var(--fs-min))', color: 'var(--cream)',
                 }}>{video.title}</p>
                 {video.client && (
                   <p style={{
-                    marginTop: 5, fontFamily: '"DM Sans",sans-serif', fontSize: 9,
+                    marginTop: 5, fontFamily: '"DM Sans",sans-serif', fontSize: 'max(calc(9px * var(--k) * var(--fm)), var(--fs-min))',
                     letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--gold)',
                   }}>{video.client}{video.celebrity ? ` · ${video.celebrity}` : ''}</p>
                 )}
               </div>
               {videos.length > 1 && (
                 <p style={{
-                  fontFamily: '"DM Sans",sans-serif', fontSize: 9,
+                  fontFamily: '"DM Sans",sans-serif', fontSize: 'max(calc(9px * var(--k) * var(--fm)), var(--fs-min))',
                   color: 'var(--ink-light)', letterSpacing: '0.12em',
                 }}>{idx + 1} / {videos.length}</p>
               )}
@@ -107,12 +107,12 @@ export default function Lightbox() {
 
 const arrowStyle = side => ({
   position: 'absolute',
-  [side]: 'clamp(-48px, -5vw, -58px)',
+  [side]: 'clamp(-48px, -5vw, calc(-58px * var(--k)))',
   top: '50%', transform: 'translateY(-50%)',
   background: 'rgba(10,10,10,0.7)', cursor: 'pointer',
   border: '1px solid rgba(245,240,232,0.25)',
-  color: 'var(--cream)', width: 'clamp(34px,5vw,44px)', height: 'clamp(34px,5vw,44px)',
+  color: 'var(--cream)', width: 'clamp(34px, 5vw, calc(44px * var(--k)))', height: 'clamp(34px, 5vw, calc(44px * var(--k)))',
   display: 'flex', alignItems: 'center', justifyContent: 'center',
-  fontSize: 'clamp(14px,2vw,18px)', transition: 'border-color 0.2s',
+  fontSize: 'max(clamp(calc(14px * var(--fm)), 2vw, calc(18px * var(--k))), var(--fs-min))', transition: 'border-color 0.2s',
   borderRadius: 2,
 });

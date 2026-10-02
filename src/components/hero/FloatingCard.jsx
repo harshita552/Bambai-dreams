@@ -73,7 +73,7 @@ export default function FloatingCard({
             >
               {label && (
                 <span style={{
-                  fontFamily: '"DM Sans",sans-serif', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase',
+                  fontFamily: '"DM Sans",sans-serif', fontSize: 'max(calc(9px * var(--k) * var(--fm)), var(--fs-min))', letterSpacing: '0.18em', textTransform: 'uppercase',
                   color: 'rgba(255,255,255,0.85)', background: 'rgba(0,0,0,0.4)', padding: '4px 8px',
                 }}>
                   {label}

@@ -14,9 +14,11 @@ import ServiceDetail from './pages/ServiceDetail';
 import Contact       from './pages/Contact';
 import HeroSection   from './components/hero/HeroSection';
 import ScrollToTop   from './components/ScrollToTop';
+import { useTouchReveal } from './hooks/useTouchReveal';
 
 export default function App() {
   const location = useLocation();
+  useTouchReveal(location.pathname);
 
   return (
     <LightboxProvider>

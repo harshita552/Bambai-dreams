@@ -16,8 +16,8 @@ function GradientThumb({ video }) {
     }}>
       <p style={{
         fontFamily:'"Playfair Display",serif', fontStyle:'italic',
-        color:'#f4f4f4', opacity:0.5, fontSize:11,
-        textAlign:'center', padding:'0 18px', lineHeight:1.4, maxWidth:200,
+        color:'#f4f4f4', opacity:0.5, fontSize:'max(calc(11px * var(--k) * var(--fm)), var(--fs-min))',
+        textAlign:'center', padding:'0 18px', lineHeight:1.4, maxWidth:'calc(200px * var(--k))',
       }}>{video.title}</p>
     </div>
   );
@@ -154,11 +154,11 @@ export default function VideoCard({
               )}
               <p style={{
                 fontFamily:'"Playfair Display",serif', fontStyle:'italic',
-                fontSize:14, color:'#f4f4f4', lineHeight:1.35,
+                fontSize:'max(calc(14px * var(--k) * var(--fm)), var(--fs-min))', color:'#f4f4f4', lineHeight:1.35,
               }}>{video.title}</p>
               {video.celebrity && (
                 <p style={{
-                  fontFamily:'"DM Sans",sans-serif', fontSize:9,
+                  fontFamily:'"DM Sans",sans-serif', fontSize:'max(calc(9px * var(--k) * var(--fm)), var(--fs-min))',
                   color:'rgba(244,244,244,0.5)', marginTop:4, letterSpacing:'0.1em',
                 }}>{video.celebrity}</p>
               )}

@@ -26,13 +26,13 @@ export default function FeaturedCard({ mouseX, mouseY, depth = 10 }) {
           width: 64, height: 64, borderRadius: '50%',
           border: '2px solid rgba(255,255,255,0.7)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color: '#fff', fontSize: 18,
+          color: '#fff', fontSize: 'max(calc(18px * var(--k) * var(--fm)), var(--fs-min))',
           backdropFilter: 'blur(4px)', background: 'rgba(255,255,255,0.05)',
         }}>▶</div>
       </div>
       <span style={{
         position: 'absolute', bottom: 16, left: 16,
-        fontFamily: '"DM Sans",sans-serif', fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase',
+        fontFamily: '"DM Sans",sans-serif', fontSize: 'max(calc(10px * var(--k) * var(--fm)), var(--fs-min))', letterSpacing: '0.22em', textTransform: 'uppercase',
         color: 'rgba(255,255,255,0.75)', background: 'rgba(0,0,0,0.45)', padding: '4px 10px',
       }}>
         Placeholder Reel — Featured
