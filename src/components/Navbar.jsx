@@ -33,6 +33,8 @@ export default function Navbar() {
   const [onYellow, setOnYellow] = useState(false);
   const [hideLogo, setHideLogo] = useState(false);
   const [burgerHovered, setBurgerHovered] = useState(false);
+  const [pastTop, setPastTop] = useState(false);
+  const [compact, setCompact] = useState(() => window.matchMedia('(max-width: 1023px)').matches);
   const { pathname } = useLocation();
   const lightPage = LIGHT_BG_ROUTES.some(r => pathname.startsWith(r));
   // The bar has no background of its own anywhere on the site - it is transparent
@@ -69,6 +71,8 @@ export default function Navbar() {
 
       // sections that want the centre mark out of the way while they are on
       // screen mark themselves data-nav-nologo
+      setPastTop(window.scrollY > 40);
+
       setHideLogo([...document.querySelectorAll('[data-nav-nologo]')].some((el) => {
         const b = el.getBoundingClientRect();
         return b.top <= 72 && b.bottom > 0;
@@ -83,22 +87,40 @@ export default function Navbar() {
     };
   }, [pathname]);
 
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 1023px)');
+    const on = () => setCompact(mq.matches);
+    mq.addEventListener('change', on);
+    return () => mq.removeEventListener('change', on);
+  }, []);
+
+  // On phones and tablets the transparent bar ends up sitting on top of
+  // headings once the page moves, so there it turns into a slim frosted strip
+  // (light over light sections, dark over dark). Desktop and the top of every
+  // page keep the transparent bar.
+  const frosted = compact && pastTop && !whiteBar && !open;
+
   return (
     <>
       <div style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000,
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        padding: 'clamp(28px,4.5vh,48px) clamp(20px,4vw,40px)',
+        padding: frosted
+          ? 'clamp(10px, 1.6vh, 16px) clamp(16px, 4vw, 32px)'
+          : 'clamp(28px, 4.5vh, calc(48px * var(--k))) clamp(20px, 4vw, calc(40px * var(--k)))',
 
-        background: whiteBar ? '#fff' : 'transparent',
+        background: whiteBar ? '#fff' : frosted ? (onYellow ? 'rgba(255,203,49,0.9)' : darkInk ? 'rgba(247,245,240,0.86)' : 'rgba(10,10,10,0.62)') : 'transparent',
+        backdropFilter: frosted ? 'blur(14px) saturate(150%)' : 'none',
+        WebkitBackdropFilter: frosted ? 'blur(14px) saturate(150%)' : 'none',
         border: 'none',
-        boxShadow: 'none',
+        boxShadow: frosted ? '0 1px 0 rgba(0,0,0,0.06)' : 'none',
+        transition: 'padding 0.35s ease, background 0.35s ease',
       }}>
         {/* Social links — left */}
-        <div style={{ display: 'flex', gap: 16, flex: 1 }}>
+        <div style={{ display: 'flex', gap: 'calc(16px * var(--k))', flex: 1 }}>
           {SOCIAL.map(s => (
             <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" style={{
-              fontFamily: '"DM Sans",sans-serif', fontSize: 'clamp(14px,1.15vw,17px)', letterSpacing: '0.05em',
+              fontFamily: '"DM Sans",sans-serif', fontSize: 'max(clamp(calc(14px * var(--fm)), 1.15vw, calc(17px * var(--k))), var(--fs-min))', letterSpacing: '0.05em',
               color: ink, textTransform: 'uppercase', textDecoration: 'none',
               transition: 'color 0.3s ease',
             }}>{s.label}</a>
@@ -116,7 +138,7 @@ export default function Navbar() {
               crops to the artwork itself - otherwise the mark renders about half
               the size the box suggests. */}
           <NavLink to="/" aria-label="Bambai Dreams — home"
-            style={{ display: 'block', height: 'clamp(38px,7.2vh,62px)', aspectRatio: '0.954',
+            style={{ display: 'block', height: 'clamp(38px, 7.2vh, calc(62px * var(--k)))', aspectRatio: '0.954',
               overflow: 'hidden', lineHeight: 0 }}>
             <img src={logo.src} alt="Bambai Dreams"
               style={{ height: logo.height, width: 'auto', display: 'block',
@@ -129,9 +151,9 @@ export default function Navbar() {
         <button aria-label="Menu" onClick={() => setOpen(true)}
           onMouseEnter={() => setBurgerHovered(true)}
           onMouseLeave={() => setBurgerHovered(false)}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: burgerHovered ? 16 : 8, padding: 4, transition: 'gap 0.25s ease' }}>
+          style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: `calc(${burgerHovered ? 16 : 8}px * var(--k))`, padding: 4, transition: 'gap 0.25s ease' }}>
           {[0, 1].map(i => (
-            <span key={i} style={{ display: 'block', width: 48, height: 2, background: ink, transition: 'background 0.3s ease' }} />
+            <span key={i} style={{ display: 'block', width: 'calc(48px * var(--k))', height: 'calc(2px * var(--k))', background: ink, transition: 'background 0.3s ease' }} />
           ))}
         </button>
         </div>
@@ -146,29 +168,43 @@ export default function Navbar() {
             onClick={() => setOpen(false)}
             style={{
               position: 'fixed', inset: 0, zIndex: 1500,
-              background: 'rgba(8,8,8,0.6)',
+              background: 'rgba(8,8,8,0.82)',
               backdropFilter: 'blur(10px) saturate(160%)',
               WebkitBackdropFilter: 'blur(10px) saturate(160%)',
               display: 'flex', flexDirection: 'column',
-              alignItems: 'center', justifyContent: 'center', gap: 28,
+              alignItems: 'center', justifyContent: 'center', gap: 'clamp(4px, 1.2vh, 14px)',
             }}>
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: 'var(--yellow)' }} />
             <button onClick={e => { e.stopPropagation(); setOpen(false); }}
-              style={{ position: 'absolute', top: 24, right: 28, background: 'none', border: 'none', cursor: 'pointer', color: '#fff', fontSize: 22 }}>✕</button>
+              style={{ position: 'absolute', top: 24, right: 28, background: 'none', border: 'none', cursor: 'pointer', color: '#fff', fontSize: 'max(calc(22px * var(--k)), var(--fs-min))' }}>✕</button>
 
             {LINKS.map((l, i) => (
-              <motion.div key={l.to}
-                onClick={e => e.stopPropagation()}
-                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
-                transition={{ delay: i * 0.06 }}>
-                <NavLink to={l.to} end={l.end} onClick={() => setOpen(false)}
-                  style={({ isActive }) => ({
-                    fontFamily: '"General Sans",sans-serif', fontWeight: 600,
-                    fontSize: 'clamp(28px,6vw,48px)', color: isActive ? 'var(--yellow)' : '#fff',
-                    textDecoration: 'none', textTransform: 'uppercase',
-                  })}>{l.label}</NavLink>
-              </motion.div>
+              // each link rises out of its own mask on a soft spring, one after another
+              <div key={l.to} style={{ overflow: 'hidden', lineHeight: 1 }} onClick={e => e.stopPropagation()}>
+                <motion.div
+                  initial={{ y: '110%' }} animate={{ y: '0%' }} exit={{ y: '-110%' }}
+                  transition={{ type: 'spring', damping: 27, stiffness: 121, mass: 0.3, delay: 0.08 + i * 0.06 }}>
+                  <NavLink to={l.to} end={l.end} onClick={() => setOpen(false)}
+                    style={({ isActive }) => ({
+                      display: 'block', padding: '0.06em 0',
+                      fontFamily: '"General Sans",sans-serif', fontWeight: 600,
+                      fontSize: 'clamp(44px, 9vw, calc(72px * var(--k)))', color: isActive ? 'var(--yellow)' : '#fff',
+                      textDecoration: 'none', textTransform: 'uppercase',
+                    })}>{l.label}</NavLink>
+                </motion.div>
+              </div>
             ))}
+
+            {/* socials along the foot of the menu */}
+            <motion.div onClick={e => e.stopPropagation()}
+              initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+              transition={{ delay: 0.45, duration: 0.5 }}
+              style={{ position: 'absolute', bottom: 'clamp(24px, 5vh, 56px)', display: 'flex', gap: 24 }}>
+              {SOCIAL.map(sl => (
+                <a key={sl.label} href={sl.href} target="_blank" rel="noopener noreferrer"
+                  style={{ fontFamily: '"DM Sans",sans-serif', fontSize: 'max(calc(14px * var(--k)), var(--fs-min))', letterSpacing: '0.08em', color: 'var(--yellow)', textDecoration: 'none', textTransform: 'uppercase' }}>{sl.label}</a>
+              ))}
+            </motion.div>
 
           </motion.div>
         )}

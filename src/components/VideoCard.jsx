@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useLightbox } from '../context/LightboxContext';
 import { useVimeoLoop } from '../hooks/useVimeoLoop';
 import { toPlayerUrl } from '../data/videos';
+import { coverFor } from '../data/workVideos';
 
 function GradientThumb({ video }) {
   const [g1, g2] = video.grad || ['#2a1a0e', '#1a1612'];
@@ -15,8 +16,8 @@ function GradientThumb({ video }) {
     }}>
       <p style={{
         fontFamily:'"Playfair Display",serif', fontStyle:'italic',
-        color:'#f4f4f4', opacity:0.5, fontSize:11,
-        textAlign:'center', padding:'0 18px', lineHeight:1.4, maxWidth:200,
+        color:'#f4f4f4', opacity:0.5, fontSize:'max(calc(11px * var(--k) * var(--fm)), var(--fs-min))',
+        textAlign:'center', padding:'0 18px', lineHeight:1.4, maxWidth:'calc(200px * var(--k))',
       }}>{video.title}</p>
     </div>
   );
@@ -31,6 +32,7 @@ export default function VideoCard({
   const [imgError, setImgError] = useState(false);
   const [previewReady, setPreviewReady] = useState(false);
   const ref = useRef(null);
+  const [coverReady, setCoverReady] = useState(false);
   const previewRef = useRef(null);
   const lb  = useLightbox();
 
@@ -41,7 +43,7 @@ export default function VideoCard({
     if (!el) return;
     const obs = new IntersectionObserver(
       ([e]) => { if (e.isIntersecting) { setInView(true); obs.disconnect(); } },
-      { threshold:0.05 }
+      { threshold:0.05, rootMargin:'300px 0px' }
     );
     obs.observe(el);
     return () => obs.disconnect();
@@ -53,7 +55,11 @@ export default function VideoCard({
     lb.open(list, i >= 0 ? i : 0);
   };
 
+  // Cards from older lists carry no cover of their own; look it up by film.
+  const art = video.cover ? video : coverFor(video.embed_url);
+
   const derivedThumb = (() => {
+    if (art.poster) return art.poster;
     if (video.thumbnail_url) return video.thumbnail_url;
     const m = (video.embed_url || '').match(/vimeo\.com\/video\/(\d+)/);
     return m ? `https://vumbnail.com/${m[1]}.jpg` : '';
@@ -102,7 +108,18 @@ export default function VideoCard({
 
         {/* The card's resting state: the film's first few seconds on a loop, a
             GIF in everything but format. On hover the same player runs on. */}
-        {inView && (
+        {/* A GIF cut from the film's prime scene. The poster above holds the
+            frame until it has loaded, and the live Vimeo preview is skipped. */}
+        {art.cover ? (inView && (
+          <img
+            src={art.cover} alt="" aria-hidden decoding="async"
+            onLoad={() => setCoverReady(true)}
+            style={{
+              position:'absolute', inset:0, width:'100%', height:'100%',
+              objectFit:'cover', zIndex:2, pointerEvents:'none',
+              opacity: coverReady ? 1 : 0, transition:'opacity 0.4s',
+            }}/>
+        )) : inView && (
           <motion.iframe
             ref={previewRef}
             key={`prev-${video.id}`}
@@ -137,11 +154,11 @@ export default function VideoCard({
               )}
               <p style={{
                 fontFamily:'"Playfair Display",serif', fontStyle:'italic',
-                fontSize:14, color:'#f4f4f4', lineHeight:1.35,
+                fontSize:'max(calc(14px * var(--k) * var(--fm)), var(--fs-min))', color:'#f4f4f4', lineHeight:1.35,
               }}>{video.title}</p>
               {video.celebrity && (
                 <p style={{
-                  fontFamily:'"DM Sans",sans-serif', fontSize:9,
+                  fontFamily:'"DM Sans",sans-serif', fontSize:'max(calc(9px * var(--k) * var(--fm)), var(--fs-min))',
                   color:'rgba(244,244,244,0.5)', marginTop:4, letterSpacing:'0.1em',
                 }}>{video.celebrity}</p>
               )}

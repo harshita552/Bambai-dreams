@@ -22,7 +22,7 @@ import logoShapoorji from '../assets/shapooriji-logo.png';
 import { motion, AnimatePresence, useInView, useMotionValue, useTransform, useMotionTemplate, useAnimationFrame } from 'framer-motion';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { useSectionSnap } from '../hooks/useSectionSnap';
-import { useVimeoLoop } from '../hooks/useVimeoLoop';
+import { coverFor } from '../data/workVideos';
 import { useLightbox } from '../context/LightboxContext';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -60,7 +60,7 @@ const COPY_EXIT_BEAT = 0.6;      // screens of scroll over which the copy exits
 const COPY_EXIT_TRAVEL = 0.95;   // screens the copy covers — enough to clear the top
 const FILM_HOLD_BEAT = 0.18;     // screens the film holds before it starts moving
 
-const HERO_LEFT_CSS = 'clamp(22px,5vw,96px)';     // left gutter (CSS)
+const HERO_LEFT_CSS = 'clamp(22px, 5vw, calc(96px * var(--k)))';     // left gutter (CSS)
 const HERO_STACK_TOP = 0.324;                      // top of "BAMBAI" as a fraction of the viewport
 const HERO_LINE = 0.78;                       // wordmark line-height (em) - tight, as in the mock
 const HERO_TAGLINE_GAP = 27;                           // px between wordmark bottom and tagline
@@ -97,7 +97,7 @@ function PlaceholderBlock({ palette = PALETTES.work1, label, height = '100%' }) 
   return (
     <div style={{ position: 'relative', width: '100%', height, overflow: 'hidden', background: `linear-gradient(155deg, ${palette[0]} 0%, ${palette[1]} 100%)` }}>
       {label && (
-        <span style={{ position: 'absolute', bottom: 10, left: 12, fontFamily: '"DM Sans",sans-serif', fontSize: 7, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.85)', background: 'rgba(10,10,10,0.45)', padding: '4px 8px' }}>{label}</span>
+        <span style={{ position: 'absolute', bottom: 10, left: 12, fontFamily: '"DM Sans",sans-serif', fontSize: 'max(calc(7px * var(--k) * var(--fm)), var(--fs-min))', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.85)', background: 'rgba(10,10,10,0.45)', padding: '4px 8px' }}>{label}</span>
       )}
     </div>
   );
@@ -112,7 +112,7 @@ function ShowcaseImage({ src, palette = PALETTES.work1, label, height = '100%', 
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: imgPos }} />
       )}
       {label && (
-        <span style={{ position: 'absolute', bottom: 10, left: 12, fontFamily: '"DM Sans",sans-serif', fontSize: 7, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.85)', background: 'rgba(10,10,10,0.45)', padding: '4px 8px', zIndex: 1 }}>{label}</span>
+        <span style={{ position: 'absolute', bottom: 10, left: 12, fontFamily: '"DM Sans",sans-serif', fontSize: 'max(calc(7px * var(--k) * var(--fm)), var(--fs-min))', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.85)', background: 'rgba(10,10,10,0.45)', padding: '4px 8px', zIndex: 1 }}>{label}</span>
       )}
     </div>
   );
@@ -120,7 +120,7 @@ function ShowcaseImage({ src, palette = PALETTES.work1, label, height = '100%', 
 
 function Kicker({ children, light }) {
   return (
-    <span style={{ fontFamily: MR, fontSize: 10, letterSpacing: '0.24em', textTransform: 'uppercase', color: light ? 'rgba(255,255,255,0.5)' : 'var(--yellow)', fontWeight: 700 }}>
+    <span style={{ fontFamily: MR, fontSize: 'max(calc(10px * var(--k) * var(--fm)), var(--fs-min))', letterSpacing: '0.24em', textTransform: 'uppercase', color: light ? 'rgba(255,255,255,0.5)' : 'var(--yellow)', fontWeight: 700 }}>
       {children}
     </span>
   );
@@ -222,19 +222,24 @@ function Hero({ onViewWork, progress }) {
         {/* Warm red-gold film grade applied to the FOOTAGE itself (a CSS filter
             on the video element), so no overlay can ever touch the copy.
             Holds for ~1.4s on load, then grades back to neutral. */}
-        <motion.video autoPlay muted loop playsInline
+        <motion.div
           initial={{ filter: HERO_GRADE }}
           animate={{ filter: [HERO_GRADE, HERO_GRADE, HERO_NEUTRAL] }}
           transition={{ duration: 3.4, times: [0, 0.42, 1], ease: 'easeOut' }}
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}>
-          <source src="/videos/hero.mov" type="video/mp4" />
-        </motion.video>
+          style={{ position: 'absolute', inset: 0 }}>
+          {/* The full hero film as a GIF; its first frame holds the space until it loads. */}
+          <img src="/covers/hero-film.jpg" alt=""
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+          <img src="/covers/hero-film.gif" alt="" aria-hidden decoding="async"
+            onLoad={(e) => { e.currentTarget.style.opacity = 1; }}
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0, transition: 'opacity 0.4s ease' }} />
+        </motion.div>
 
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 30%)' }} />
         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '45%', background: 'linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0) 100%)' }} />
 
         {crosses.map((pos, i) => (
-          <span key={i} aria-hidden style={{ position: 'absolute', fontSize: 13, color: 'rgba(255,255,255,0.25)', zIndex: 2, ...pos }}>+</span>
+          <span key={i} aria-hidden style={{ position: 'absolute', fontSize: 'max(calc(13px * var(--k) * var(--fm)), var(--fs-min))', color: 'rgba(255,255,255,0.25)', zIndex: 2, ...pos }}>+</span>
         ))}
 
         {/* Featured-campaign lockup — right side. Every number here is lifted
@@ -255,7 +260,7 @@ function Hero({ onViewWork, progress }) {
               </div>
               {/* TextBox 11 — Brittany, gradient #FFF7AD to #FFA9F9. The padding
                   keeps the swashes inside the background-clip paint box. */}
-              <div className="giva-script" style={{ position: 'absolute', left: '10.42vw', top: '7.91vw', fontSize: 'clamp(34px,5.21vw,86px)', lineHeight: 1, padding: '0.36em 0.50em 0.60em 0.14em', margin: '-0.36em 0 0 -0.14em', whiteSpace: 'nowrap', backgroundImage: HERO_SCRIPT, WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent', color: 'transparent' }}>
+              <div className="giva-script" style={{ position: 'absolute', left: '10.42vw', top: '7.91vw', fontSize: 'max(clamp(34px, 5.21vw, calc(86px * var(--k))), var(--fs-min))', lineHeight: 1, padding: '0.36em 0.50em 0.60em 0.14em', margin: '-0.36em 0 0 -0.14em', whiteSpace: 'nowrap', backgroundImage: HERO_SCRIPT, WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent', color: 'transparent' }}>
                 wants
               </div>
             </motion.div>
@@ -271,7 +276,7 @@ function Hero({ onViewWork, progress }) {
               style={{
                 margin: 0, padding: 0,
                 fontFamily: BB, fontWeight: 900, textTransform: 'uppercase',
-                fontSize: 'clamp(46px,7.2vw,120px)', lineHeight: HERO_LINE,
+                fontSize: 'max(clamp(46px, 7.2vw, calc(120px * var(--k))), var(--fs-min))', lineHeight: HERO_LINE,
                 whiteSpace: 'nowrap', textAlign: 'left',
                 // Warm-white gradient so the wordmark sits in the same light as
                 // the footage behind it.
@@ -292,7 +297,7 @@ function Hero({ onViewWork, progress }) {
             </motion.h1>
 
             <motion.p initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: DURATION, ease: EASE }}
-              style={{ fontFamily: BB, fontWeight: 400, fontSize: 'clamp(18px,2.8vw,44px)', lineHeight: 1.02, letterSpacing: '0.01em', textTransform: 'uppercase', margin: `${HERO_TAGLINE_GAP}px 0 0`, backgroundImage: HERO_GOLD, WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent', color: 'transparent' }}>
+              style={{ fontFamily: BB, fontWeight: 400, fontSize: 'max(clamp(calc(18px * var(--fm)), 2.8vw, calc(44px * var(--k))), var(--fs-min))', lineHeight: 1.02, letterSpacing: '0.01em', textTransform: 'uppercase', margin: `${HERO_TAGLINE_GAP}px 0 0`, backgroundImage: HERO_GOLD, WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent', color: 'transparent' }}>
               WE MAKE FILMS
               <br />PEOPLE FEEL.
             </motion.p>
@@ -302,10 +307,10 @@ function Hero({ onViewWork, progress }) {
               whileTap={{ scale: 0.97 }}
               className="cta-hero"
               style={{
-                marginTop: 38, alignSelf: 'flex-start', fontFamily: MR, fontWeight: 700, fontSize: 11,
+                marginTop: 'calc(38px * var(--k))', alignSelf: 'flex-start', fontFamily: MR, fontWeight: 700, fontSize: 'max(clamp(calc(11px * var(--fm)), 0.78vw, calc(15px * var(--k))), var(--fs-min))',
                 textIndent: '0.22em', textTransform: 'uppercase',
                 color: '#0a0a0a', background: 'var(--yellow)', border: 'none',
-                padding: '11px 24px', cursor: 'pointer',
+                padding: '0.95em 2.2em', cursor: 'pointer',
                 boxShadow: '0 8px 24px rgba(0,0,0,0.25)'
               }}>
               View Work
@@ -322,17 +327,17 @@ function Hero({ onViewWork, progress }) {
         <div style={{ position: 'absolute', top: `${HERO_STACK_TOP * 100}vh`, left: 0, right: 0, zIndex: 4, textAlign: 'left', padding: `0 ${HERO_LEFT_CSS}` }}>
           <div style={{ overflow: 'hidden' }}>
             <motion.h1 initial={{ y: '105%' }} animate={{ y: '0%' }} transition={{ delay: 0.15, duration: DURATION, ease: EASE }}
-              style={{ margin: '0 0 16px', fontFamily: BB, fontWeight: 900, textTransform: 'uppercase', fontSize: 'clamp(48px,14vw,80px)', color: '#fff', lineHeight: HERO_LINE, letterSpacing: '0.005em' }}>
+              style={{ margin: '0 0 16px', fontFamily: BB, fontWeight: 900, textTransform: 'uppercase', fontSize: 'max(clamp(48px, 14vw, calc(80px * var(--k))), var(--fs-min))', color: '#fff', lineHeight: HERO_LINE, letterSpacing: '0.005em' }}>
               BAMBAI<br />DREAMS
             </motion.h1>
           </div>
           <motion.p initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: DURATION, ease: EASE }}
-            style={{ fontFamily: BB, fontWeight: 400, fontSize: 'clamp(16px,5.4vw,24px)', lineHeight: 1.02, textTransform: 'uppercase', letterSpacing: '0.01em', marginBottom: 22, backgroundImage: HERO_GOLD, WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent', color: 'transparent' }}>
+            style={{ fontFamily: BB, fontWeight: 400, fontSize: 'max(clamp(calc(16px * var(--fm)), 5.4vw, calc(24px * var(--k))), var(--fs-min))', lineHeight: 1.02, textTransform: 'uppercase', letterSpacing: '0.01em', marginBottom: 22, backgroundImage: HERO_GOLD, WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent', color: 'transparent' }}>
             Mumbai's Premier Film<br />Production House
           </motion.p>
           <motion.button initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55, duration: DURATION, ease: EASE }}
             onClick={onViewWork}
-            style={{ fontFamily: MR, fontWeight: 700, fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#0a0a0a', background: 'var(--yellow)', border: 'none', padding: '13px 28px', cursor: 'pointer' }}>
+            style={{ fontFamily: MR, fontWeight: 700, fontSize: 'max(calc(11px * var(--k) * var(--fm)), var(--fs-min))', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#0a0a0a', background: 'var(--yellow)', border: 'none', padding: '13px 28px', cursor: 'pointer' }}>
             View Work →
           </motion.button>
         </div>
@@ -444,39 +449,9 @@ const PAIR_TIMING = [[0, 0.35], [0.14, 0.48], [0.28, 0.58]];
 function FeaturedShowcase({ outerRef }) {
   const pinRef = useRef(null);
   const videoRef = useRef(null);
-  const videoFrameRef = useRef(null);
   const headingScaleRef = useRef(null);
   const wrapperRefs = useRef([]);
   const isMobile = useIsMobile();
-  const featVid = useNearViewport(videoFrameRef);
-  const featInViewRef = useRef(featVid.inView);
-  featInViewRef.current = featVid.inView;
-
-  // Robustly start the featured film: wait for the Vimeo player's `ready` event
-  // (a bare postMessage before that is ignored — which is why it needed a refresh),
-  // plus a few fallback nudges. Play when on screen, pause when scrolled away.
-  useEffect(() => {
-    const iframe = videoFrameRef.current;
-    if (!iframe) return;
-    const sync = () => {
-      const win = iframe.contentWindow;
-      if (win) win.postMessage(JSON.stringify({ method: featInViewRef.current ? 'play' : 'pause' }), '*');
-    };
-    const onMsg = (e) => {
-      if (typeof e.origin === 'string' && e.origin.indexOf('vimeo') === -1) return;
-      let d; try { d = typeof e.data === 'string' ? JSON.parse(e.data) : e.data; } catch { return; }
-      if (d && d.event === 'ready') sync();
-    };
-    window.addEventListener('message', onMsg);
-    const nudges = [600, 1500, 3000].map((ms) => setTimeout(sync, ms));
-    return () => { window.removeEventListener('message', onMsg); nudges.forEach(clearTimeout); };
-  }, []);
-
-  useEffect(() => {
-    const win = videoFrameRef.current && videoFrameRef.current.contentWindow;
-    if (win) win.postMessage(JSON.stringify({ method: featVid.inView ? 'play' : 'pause' }), '*');
-  }, [featVid.inView]);
-
   useEffect(() => {
     if (!outerRef.current || isMobile) return;   // desktop-only scroll choreography
     const ctx = gsap.context(() => {
@@ -535,15 +510,14 @@ function FeaturedShowcase({ outerRef }) {
     return (
       <section ref={outerRef} style={{ position: 'relative', zIndex: 2, background: '#0a0a0a', padding: '48px 20px 56px' }}>
         <Kicker light>Featured Campaign</Kicker>
-        <div style={{ marginTop: 16, width: '100%', aspectRatio: '16/9', borderRadius: 6, overflow: 'hidden', boxShadow: '0 20px 50px rgba(0,0,0,0.6)' }}>
-          <iframe
-            title="Bambai Dreams — Main Film"
-            src="https://player.vimeo.com/video/1045916243?h=0f88637370&autoplay=1&muted=1&loop=1&background=1"
-            style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
-            allow="autoplay; fullscreen; picture-in-picture"
-          />
+        <div style={{ position: 'relative', marginTop: 16, width: '100%', aspectRatio: '16/9', borderRadius: 6, overflow: 'hidden', boxShadow: '0 20px 50px rgba(0,0,0,0.6)' }}>
+          <img src="/covers/featured-realme-14-series.jpg" alt="Bambai Dreams — Main Film"
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+          <img src="/covers/featured-realme-14-series.gif" alt="" aria-hidden decoding="async"
+            onLoad={(e) => { e.currentTarget.style.opacity = 1; }}
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block', opacity: 0, transition: 'opacity 0.4s ease' }} />
         </div>
-        <h2 style={{ margin: '30px 0 0', fontFamily: BB, fontWeight: 900, fontSize: 'clamp(30px,8.5vw,46px)', color: '#fff', lineHeight: 1.02, textTransform: 'uppercase', letterSpacing: '-0.03em' }}>
+        <h2 style={{ margin: '30px 0 0', fontFamily: BB, fontWeight: 900, fontSize: 'max(clamp(30px, 8.5vw, calc(46px * var(--k))), var(--fs-min))', color: '#fff', lineHeight: 1.02, textTransform: 'uppercase', letterSpacing: '-0.03em' }}>
           Craft · Precision · Purpose
         </h2>
       </section>
@@ -556,19 +530,17 @@ function FeaturedShowcase({ outerRef }) {
 
         {/* Video: flex-wrapper centers it horizontally; GSAP handles zoom + vertical slide on inner box */}
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 2 }}>
-          <div ref={videoRef} style={{ position: 'relative', width: 'clamp(260px,64vw,880px)', aspectRatio: '16/9', willChange: 'transform', borderRadius: 8, overflow: 'hidden', boxShadow: '0 40px 90px rgba(0,0,0,0.55)' }}>
-            <iframe ref={videoFrameRef}
-              title="Bambai Dreams — Main Film"
-              src="https://player.vimeo.com/video/1045916243?h=0f88637370&autoplay=1&muted=1&loop=1&background=1"
-              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none' }}
-              allow="autoplay; fullscreen; picture-in-picture"
-              allowFullScreen
-            />
+          <div ref={videoRef} style={{ position: 'relative', width: 'clamp(260px, 64vw, calc(880px * var(--k)))', aspectRatio: '16/9', willChange: 'transform', borderRadius: 8, overflow: 'hidden', boxShadow: '0 40px 90px rgba(0,0,0,0.55)' }}>
+            <img src="/covers/featured-realme-14-series.jpg" alt="Bambai Dreams — Main Film"
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            <img src="/covers/featured-realme-14-series.gif" alt="" aria-hidden decoding="async"
+              onLoad={(e) => { e.currentTarget.style.opacity = 1; }}
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block', opacity: 0, transition: 'opacity 0.4s ease' }} />
             {/* bottom gradient so the caption stays legible without covering the subject */}
             <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 42%)', pointerEvents: 'none' }} />
             {/* caption — small, single line, low on the video (off the subject's face) */}
-            <div style={{ position: 'absolute', left: 0, right: 0, bottom: 'clamp(14px,3.2%,28px)', textAlign: 'center', padding: '0 16px', pointerEvents: 'none' }}>
-              <h2 style={{ margin: 0, fontFamily: BB, fontWeight: 900, fontSize: 'clamp(12px,1.5vw,22px)', color: '#fff', lineHeight: 1.1, textTransform: 'uppercase', letterSpacing: '0.03em', textShadow: '0 2px 16px rgba(0,0,0,0.7)' }}>
+            <div style={{ position: 'absolute', left: 0, right: 0, bottom: 'clamp(14px, 3.2%, calc(28px * var(--k)))', textAlign: 'center', padding: '0 16px', pointerEvents: 'none' }}>
+              <h2 style={{ margin: 0, fontFamily: BB, fontWeight: 900, fontSize: 'max(clamp(calc(12px * var(--fm)), 1.5vw, calc(22px * var(--k))), var(--fs-min))', color: '#fff', lineHeight: 1.1, textTransform: 'uppercase', letterSpacing: '0.03em', textShadow: '0 2px 16px rgba(0,0,0,0.7)' }}>
                 Craft&nbsp;·&nbsp;Precision&nbsp;·&nbsp;Purpose
               </h2>
             </div>
@@ -580,7 +552,7 @@ function FeaturedShowcase({ outerRef }) {
           <div key={i} ref={el => (wrapperRefs.current[i] = el)}
             style={{
               position: 'absolute', top: 0, left: '50%',
-              width: 'clamp(190px,20vw,320px)', height: 'clamp(300px,31vw,500px)', padding: '7px 0',
+              width: 'clamp(190px, 20vw, calc(320px * var(--k)))', height: 'clamp(300px, 31vw, calc(500px * var(--k)))', padding: '7px 0',
               zIndex: 6, willChange: 'transform', display: 'var(--stills-display, block)'
             }}
             className="featured-still">
@@ -602,14 +574,16 @@ function FeaturedShowcase({ outerRef }) {
 ══════════════════════════════════════════════════════════════════ */
 const FEATURED_WORKS = [
   {
-    src: '/videos/section-2/ARMOUR.mp4', title: 'Gold. Grit. Glory.', sub: 'Athlete Campaign', client: 'Under Armour',
+    src: '/videos/section-2/ARMOUR.mp4', gif: '/covers/featured-under-armour.gif', poster: '/covers/featured-under-armour.jpg',
+    title: 'Gold. Grit. Glory.', sub: 'Athlete Campaign', client: 'Under Armour',
     overlay: {
       kind: 'campaign', logo: logoUnderarmour, logoWhite: true,
       line1: 'Gold. Grit. Glory.', line2: 'Athlete Campaign 2023',
     },
   },
   {
-    src: '/videos/section-2/Zoho.mp4', title: 'Built For More', sub: 'Product Film', client: 'Zoho',
+    src: '/videos/section-2/Zoho.mp4', gif: '/covers/featured-zoho.gif', poster: '/covers/featured-zoho.jpg',
+    title: 'Built For More', sub: 'Product Film', client: 'Zoho',
     // Overlay rebuilt in HTML (matching the client's Canva reference) so the
     // lockup stays crisp and never gets cropped with the footage.
     overlay: { logo: zohoMark, line1: 'ZOHO', line2: 'RUN YOUR', accent: 'BUSINESS' },
@@ -620,6 +594,8 @@ const FEATURED_WORKS = [
 // transparent, and the first time its film scrolls into view it rises into
 // place and fades up. It plays once on entry and then stays — the position is
 // not tied to scroll, so it never drifts back out or re-runs on the way past.
+const filmFill = { position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 72%' };
+
 const REVEAL_RISE = 110;   // px the copy travels on the way in
 const REVEAL_EASE = 'cubic-bezier(0.16, 1, 0.3, 1)';
 const REVEAL_MS = 900;
@@ -698,44 +674,48 @@ function FeaturedWorkPanel({ work }) {
   }, [inView, entered]);
   return (
     <div ref={ref} style={{ position: 'absolute', inset: 0, overflow: 'hidden', background: '#0a0a0a' }}>
-      {entered && (
-        // Full-bleed. On viewports wider than 16:9 the crop is vertical, so bias
-        // it downward (object-position 72%) to keep the bottom credits row in
-        // frame — that trims from the top, where there's no baked-in copy.
-        <video ref={vidRef} src={work.src} muted loop playsInline autoPlay preload="auto"
-          style={{
-            position: 'absolute', inset: 0, width: '100%', height: '100%',
-            objectFit: 'cover', objectPosition: 'center 72%'
-          }} />
+      {/* Full-bleed. On viewports wider than 16:9 the crop is vertical, so bias
+          it downward (object-position 72%) to keep the bottom credits row in
+          frame — that trims from the top, where there's no baked-in copy. */}
+      {work.gif ? (<>
+        <img src={work.poster} alt="" style={{ ...filmFill }} />
+        {entered && (
+          <img src={work.gif} alt="" aria-hidden decoding="async"
+            onLoad={(e) => { e.currentTarget.style.opacity = 1; }}
+            style={{ ...filmFill, opacity: 0, transition: 'opacity 0.4s ease' }} />
+        )}
+      </>) : entered && (
+        <video ref={vidRef} src={work.src} muted loop playsInline autoPlay preload="auto" style={filmFill} />
       )}
 
       {work.overlay && (
-        <div ref={exitRef} style={{
+        // --u is the deck's 1vw; narrow screens raise it so the lockup scales up as one piece.
+        <div ref={exitRef} className="film-copy" style={{
           position: 'absolute', inset: 0, zIndex: 2, pointerEvents: 'none',
-          padding: 'clamp(22px,3.4vw,54px)', willChange: 'transform'
+          padding: 'clamp(22px, 3.4vw, calc(54px * var(--k)))', willChange: 'transform'
         }}>
 
           {work.overlay.kind === 'campaign' ? (
             /* Deck slide 3: logo, campaign line, film line, button — anchored
                on the same 1440x810 canvas the other panels use. */
-            <div style={{ position: 'absolute', left: '5.63vw', top: '29.63%', width: '40vw', height: 0, willChange: 'transform' }}>
+            <div className="film-lockup" style={{ position: 'absolute', left: 'calc(5.63 * var(--u))', top: '29.63%', width: 'calc(40 * var(--u))', height: 0, willChange: 'transform' }}>
               <div style={{ position: 'relative', height: 0, ...reveal }}>
               <img src={work.overlay.logo} alt={work.client}
-                style={{ position: 'absolute', left: 0, top: 0, height: '4.44vw', width: 'auto', display: 'block',
+                style={{ position: 'absolute', left: 0, top: 0, height: 'calc(4.44 * var(--u))', width: 'auto', display: 'block',
                   filter: work.overlay.logoWhite ? 'brightness(0) invert(1)' : 'none' }} />
-              <div className="deck-type" style={{ position: 'absolute', left: 0, top: '6.46vw', fontFamily: BB, fontSize: '4.61vw', lineHeight: 1, color: '#CBFE20', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+              <div className="deck-type" style={{ position: 'absolute', left: 0, top: 'calc(6.46 * var(--u))', fontFamily: BB, fontSize: 'calc(4.61 * var(--u))', lineHeight: 1, color: '#CBFE20', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
                 {work.overlay.line1}
               </div>
-              <div className="deck-type" style={{ position: 'absolute', left: 0, top: '10.28vw', fontFamily: BB, fontSize: '3.16vw', lineHeight: 1, color: '#FFFFFF', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+              <div className="deck-type" style={{ position: 'absolute', left: 0, top: 'calc(10.28 * var(--u))', fontFamily: BB, fontSize: 'calc(3.16 * var(--u))', lineHeight: 1, color: '#FFFFFF', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
                 {work.overlay.line2}
               </div>
               <Link to="/work" style={{
-                position: 'absolute', left: 0, top: '17.08vw',
-                width: '10.14vw', height: '3.13vw', minWidth: 104, minHeight: 32,
+                position: 'absolute', left: 0, top: 'calc(17.08 * var(--u))',
+                width: 'calc(10.14 * var(--u))', height: 'calc(3.13 * var(--u))', minWidth: 104, minHeight: 32,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 background: '#CBFE20', textDecoration: 'none', pointerEvents: 'auto',
               }}>
-                <span className="deck-type" style={{ fontFamily: BB, fontSize: '1.02vw', color: '#17191A', textTransform: 'uppercase', lineHeight: 1, whiteSpace: 'nowrap' }}>
+                <span className="deck-type" style={{ fontFamily: BB, fontSize: 'calc(1.02 * var(--u))', color: '#17191A', textTransform: 'uppercase', lineHeight: 1, whiteSpace: 'nowrap' }}>
                   Explore Campaign
                 </span>
               </Link>
@@ -747,36 +727,36 @@ function FeaturedWorkPanel({ work }) {
               That slide is a 1440x810 canvas and places the group at 81,201, so
               the block is anchored there and every offset inside it is vw —
               the lockup scales as one piece. */}
-          <div style={{ position: 'absolute', left: '5.63vw', top: '24.81%', width: '30vw', height: 0, willChange: 'transform' }}>
+          <div className="film-lockup" style={{ position: 'absolute', left: 'calc(5.63 * var(--u))', top: '24.81%', width: 'calc(30 * var(--u))', height: 0, willChange: 'transform' }}>
             <div style={{ position: 'relative', height: 0, ...reveal }}>
             {/* Freeform 12 — 115x41 at the group origin. */}
             <img src={work.overlay.logo} alt={work.client}
-              style={{ position: 'absolute', left: 0, top: 0, height: '2.85vw', width: 'auto', objectFit: 'contain', display: 'block' }} />
+              style={{ position: 'absolute', left: 0, top: 0, height: 'calc(2.85 * var(--u))', width: 'auto', objectFit: 'contain', display: 'block' }} />
 
             {/* TextBox 11 — Bebas Neue Bold 121.6px, #FCFEFF. */}
-            <div className="deck-type" style={{ position: 'absolute', left: 0, top: '5.76vw', fontFamily: BB, fontSize: '8.44vw', lineHeight: 1, color: '#FCFEFF', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+            <div className="deck-type" style={{ position: 'absolute', left: 0, top: 'calc(5.76 * var(--u))', fontFamily: BB, fontSize: 'calc(8.44 * var(--u))', lineHeight: 1, color: '#FCFEFF', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
               {work.overlay.line1}
             </div>
 
             {/* TextBox 9 — Bebas Neue 65.9px, #FCFEFF. */}
-            <div className="deck-type" style={{ position: 'absolute', left: 0, top: '13.75vw', fontFamily: BB, fontSize: '4.58vw', lineHeight: 1, color: '#FCFEFF', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+            <div className="deck-type" style={{ position: 'absolute', left: 0, top: 'calc(13.75 * var(--u))', fontFamily: BB, fontSize: 'calc(4.58 * var(--u))', lineHeight: 1, color: '#FCFEFF', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
               {work.overlay.line2}
             </div>
 
             {/* TextBox 10 — rotated -90 in the deck, so it reads bottom-to-top. */}
-            <div className="deck-type" style={{ position: 'absolute', left: '13.91vw', top: '7.55vw', fontFamily: BB, fontSize: '3.58vw', lineHeight: 1, color: '#FFD21F', textTransform: 'uppercase', writingMode: 'vertical-rl', transform: 'rotate(180deg)', whiteSpace: 'nowrap' }}>
+            <div className="deck-type" style={{ position: 'absolute', left: 'calc(13.91 * var(--u))', top: 'calc(7.55 * var(--u))', fontFamily: BB, fontSize: 'calc(3.58 * var(--u))', lineHeight: 1, color: '#FFD21F', textTransform: 'uppercase', writingMode: 'vertical-rl', transform: 'rotate(180deg)', whiteSpace: 'nowrap' }}>
               {work.overlay.accent}
             </div>
 
             {/* Group 3 — 146x45 button. The deck sets it in #CBFE20; the client
                 asked for brand yellow on this panel. */}
             <Link to="/work" style={{
-              position: 'absolute', left: 0, top: '21.25vw',
-              width: '10.14vw', height: '3.13vw', minWidth: 104, minHeight: 32,
+              position: 'absolute', left: 0, top: 'calc(21.25 * var(--u))',
+              width: 'calc(10.14 * var(--u))', height: 'calc(3.13 * var(--u))', minWidth: 104, minHeight: 32,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               background: 'var(--yellow)', textDecoration: 'none', pointerEvents: 'auto',
             }}>
-              <span className="deck-type" style={{ fontFamily: BB, fontSize: '1.02vw', color: '#17191A', textTransform: 'uppercase', lineHeight: 1, whiteSpace: 'nowrap' }}>
+              <span className="deck-type" style={{ fontFamily: BB, fontSize: 'calc(1.02 * var(--u))', color: '#17191A', textTransform: 'uppercase', lineHeight: 1, whiteSpace: 'nowrap' }}>
                 Explore Campaign
               </span>
             </Link>
@@ -885,22 +865,22 @@ function WorkCampaignPanel({ campaign }) {
         {/* Top: text */}
         <div style={{ padding: '20px 20px 16px', flexShrink: 0 }}>
           <Kicker light>{campaign.category}</Kicker>
-          <h3 style={{ fontFamily: BB, fontWeight: 700, fontSize: 'clamp(28px,8vw,44px)', color: '#fff', lineHeight: 0.92, margin: '8px 0 10px', textTransform: 'uppercase', whiteSpace: 'pre-line' }}>
+          <h3 style={{ fontFamily: BB, fontWeight: 700, fontSize: 'max(clamp(28px, 8vw, calc(44px * var(--k))), var(--fs-min))', color: '#fff', lineHeight: 0.92, margin: '8px 0 10px', textTransform: 'uppercase', whiteSpace: 'pre-line' }}>
             {campaign.title}
           </h3>
-          <p style={{ fontFamily: MR, fontSize: 12, color: 'rgba(255,255,255,0.55)', lineHeight: 1.6, margin: '0 0 12px' }}>
+          <p style={{ fontFamily: MR, fontSize: 'max(calc(12px * var(--k) * var(--fm)), var(--fs-min))', color: 'rgba(255,255,255,0.55)', lineHeight: 1.6, margin: '0 0 12px' }}>
             {campaign.insight}
           </p>
           <div style={{ display: 'flex', gap: 20, marginBottom: 14, flexWrap: 'wrap' }}>
             {[['Client', campaign.client], ['Year', campaign.year]].map(([k, v]) => (
               <div key={k}>
-                <span style={{ fontFamily: MR, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', display: 'block', marginBottom: 3 }}>{k}</span>
-                <span style={{ fontFamily: MR, fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.8)' }}>{v}</span>
+                <span style={{ fontFamily: MR, fontSize: 'max(calc(9px * var(--k) * var(--fm)), var(--fs-min))', letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', display: 'block', marginBottom: 3 }}>{k}</span>
+                <span style={{ fontFamily: MR, fontSize: 'max(calc(12px * var(--k) * var(--fm)), var(--fs-min))', fontWeight: 600, color: 'rgba(255,255,255,0.8)' }}>{v}</span>
               </div>
             ))}
           </div>
-          <Link to="/work" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontFamily: MR, fontWeight: 700, fontSize: 11, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--yellow)', textDecoration: 'none' }}>
-            VIEW PROJECT <span style={{ fontSize: 16, lineHeight: 1 }}>→</span>
+          <Link to="/work" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontFamily: MR, fontWeight: 700, fontSize: 'max(calc(11px * var(--k) * var(--fm)), var(--fs-min))', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--yellow)', textDecoration: 'none' }}>
+            VIEW PROJECT <span style={{ fontSize: 'max(calc(16px * var(--k) * var(--fm)), var(--fs-min))', lineHeight: 1 }}>→</span>
           </Link>
         </div>
         {/* Bottom: image */}
@@ -914,9 +894,9 @@ function WorkCampaignPanel({ campaign }) {
   return (
     <div ref={ref} style={{ height: '100%', display: 'grid', gridTemplateColumns: '1fr 1.15fr', background: '#0a0a0a', overflow: 'hidden' }}>
       {/* Left: text */}
-      <div style={{ padding: 'clamp(40px,6vh,80px) clamp(24px,4vw,52px)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', position: 'relative' }}>
+      <div style={{ padding: 'clamp(40px, 6vh, calc(80px * var(--k))) clamp(24px, 4vw, calc(52px * var(--k)))', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', position: 'relative' }}>
         {/* Giant ghost index */}
-        <span aria-hidden style={{ position: 'absolute', top: '4%', left: 'clamp(16px,3vw,40px)', fontFamily: '"General Sans",sans-serif', fontWeight: 900, fontSize: 'clamp(80px,16vw,220px)', color: 'rgba(255,255,255,0.06)', lineHeight: 1, userSelect: 'none', pointerEvents: 'none' }}>{campaign.index}</span>
+        <span aria-hidden style={{ position: 'absolute', top: '4%', left: 'clamp(16px, 3vw, calc(40px * var(--k)))', fontFamily: '"General Sans",sans-serif', fontWeight: 900, fontSize: 'max(clamp(80px, 16vw, calc(220px * var(--k))), var(--fs-min))', color: 'rgba(255,255,255,0.06)', lineHeight: 1, userSelect: 'none', pointerEvents: 'none' }}>{campaign.index}</span>
 
         <div style={{ position: 'relative', zIndex: 1, maxHeight: '72vh', overflow: 'hidden' }}>
           <motion.div initial={{ opacity: 0, y: 8 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5 }}>
@@ -924,28 +904,28 @@ function WorkCampaignPanel({ campaign }) {
           </motion.div>
 
           <motion.h3 initial={{ opacity: 0, y: 24 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: DURATION, ease: EASE, delay: 0.08 }}
-            style={{ fontFamily: BB, fontWeight: 700, fontSize: 'clamp(44px,7vw,96px)', color: '#fff', lineHeight: 0.92, margin: '12px 0 20px', textTransform: 'uppercase', whiteSpace: 'pre-line' }}>
+            style={{ fontFamily: BB, fontWeight: 700, fontSize: 'max(clamp(44px, 7vw, calc(96px * var(--k))), var(--fs-min))', color: '#fff', lineHeight: 0.92, margin: '12px 0 20px', textTransform: 'uppercase', whiteSpace: 'pre-line' }}>
             {campaign.title}
           </motion.h3>
 
           <motion.p initial={{ opacity: 0, y: 14 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: DURATION, ease: EASE, delay: 0.18 }}
-            style={{ fontFamily: MR, fontWeight: 400, fontSize: 'clamp(13px,1.2vw,14px)', color: 'rgba(255,255,255,0.6)', lineHeight: 1.65, maxWidth: 380, margin: '0 0 28px' }}>
+            style={{ fontFamily: MR, fontWeight: 400, fontSize: 'max(clamp(calc(13px * var(--fm)), 1.2vw, calc(14px * var(--k))), var(--fs-min))', color: 'rgba(255,255,255,0.6)', lineHeight: 1.65, maxWidth: 'calc(380px * var(--k))', margin: '0 0 28px' }}>
             {campaign.insight}
           </motion.p>
 
           <motion.div initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}} transition={{ duration: DURATION, delay: 0.28 }}
-            style={{ display: 'flex', gap: 'clamp(16px,2.5vw,32px)', marginBottom: 36, flexWrap: 'wrap' }}>
+            style={{ display: 'flex', gap: 'clamp(16px, 2.5vw, calc(32px * var(--k)))', marginBottom: 36, flexWrap: 'wrap' }}>
             {[['Client', campaign.client], ['Year', campaign.year], ['Role', campaign.role]].map(([k, v]) => (
               <div key={k}>
-                <span style={{ fontFamily: MR, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', display: 'block', marginBottom: 4 }}>{k}</span>
-                <span style={{ fontFamily: MR, fontSize: 'clamp(11px,1.2vw,13px)', fontWeight: 600, color: 'rgba(255,255,255,0.8)' }}>{v}</span>
+                <span style={{ fontFamily: MR, fontSize: 'max(calc(9px * var(--k) * var(--fm)), var(--fs-min))', letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', display: 'block', marginBottom: 4 }}>{k}</span>
+                <span style={{ fontFamily: MR, fontSize: 'max(clamp(calc(11px * var(--fm)), 1.2vw, calc(13px * var(--k))), var(--fs-min))', fontWeight: 600, color: 'rgba(255,255,255,0.8)' }}>{v}</span>
               </div>
             ))}
           </motion.div>
 
           <motion.div initial={{ opacity: 0, x: -8 }} animate={inView ? { opacity: 1, x: 0 } : {}} transition={{ duration: DURATION, delay: 0.35 }}>
-            <Link to="/work" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, fontFamily: MR, fontWeight: 700, fontSize: 12, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--yellow)', textDecoration: 'none' }}>
-              VIEW PROJECT <span style={{ fontSize: 18, lineHeight: 1 }}>→</span>
+            <Link to="/work" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, fontFamily: MR, fontWeight: 700, fontSize: 'max(calc(12px * var(--k) * var(--fm)), var(--fs-min))', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--yellow)', textDecoration: 'none' }}>
+              VIEW PROJECT <span style={{ fontSize: 'max(calc(18px * var(--k) * var(--fm)), var(--fs-min))', lineHeight: 1 }}>→</span>
             </Link>
           </motion.div>
         </div>
@@ -974,96 +954,45 @@ function WorkCampaignPanel({ campaign }) {
   );
 }
 
-// Six featured reels — Vimeo (thumbnail poster + background-mode video on hover).
-// Titles are the films' own, as they read on vimeo.com/bambaidreams.
+// Six featured reels — each tile loops a GIF cut from its own film; a click
+// plays the full film. Titles are the films' own, as they read on
+// vimeo.com/bambaidreams.
 const WORK_REELS = [
   { index: '01', title: 'realme 14 Series', sub: 'realme × Shah Rukh Khan', id: '1045916243', h: '0f88637370' },
   { index: '02', title: 'GIVA', sub: 'GIVA × Kriti Sanon', id: '1194918051', h: '76643967c4' },
   { index: '03', title: 'Zindagi Ke Real Heroes', sub: 'OPPO F29 Series 5G · The Durable Champion', id: '1068788543', h: '9a57c4fc4e' },
   { index: '04', title: 'Velocity Elite', sub: 'Under Armour × Vedarth Thapa', id: '1190896661', h: '260b0b94e6' },
   { index: '05', title: 'Velocity Elite', sub: 'Under Armour × Renee Noronha', id: '1183020138', h: '0cb42d51f0' },
-  // zoom: this one is a ~2.2:1 film delivered letterboxed inside a 16:9 frame,
-  // so it plays with black bands over roughly 9% of the height top and bottom.
-  // 1.25 scales the picture past them and fills the tile like the rest.
-  { index: '06', title: 'Imagine IF', sub: 'OPPO × SS Rajamouli · Photography Awards', id: '947795645', h: '85a5df077a', zoom: 1.25 },
+  { index: '06', title: 'Imagine IF', sub: 'OPPO × SS Rajamouli · Photography Awards', id: '947795645', h: '85a5df077a' },
 ];
 
-// 16:9 — the ratio every one of these films is mastered at, so each fills its
-// tile exactly: no letterbox bands, no crop, and all six identical. (The deck
-// drew 407x265 tiles, but that is 1.54 against the films' 1.78 and the mismatch
-// is what put black bands on some of them.)
-const TILE_AR = 16 / 9;
 const TILE_ZOOM = 1.04;      // shared overscan, so no tile shows a seam or a stray edge
 
-// Grid tile: at rest it is just the film's thumbnail. The video mounts on the
-// first hover, plays for as long as the pointer stays, and fades back to the
-// thumbnail on the way out - so nothing streams until someone asks for it.
+// The film's cover: its poster frame shows at once, and the GIF fades in over
+// it as the tile nears the viewport. A film without a cover yet keeps its
+// Vimeo thumbnail.
+function ReelCover({ reel, scale = 1, load = true }) {
+  const art = coverFor(reel.id);
+  const [ready, setReady] = useState(false);
+  const fill = {
+    position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover',
+    transform: `scale(${scale.toFixed(3)})`, transition: 'transform 0.6s ease, opacity 0.4s ease',
+  };
+  return (
+    <>
+      <img src={art.poster || `https://vumbnail.com/${reel.id}.jpg`} alt={reel.title} style={fill} />
+      {art.cover && load && (
+        <img src={art.cover} alt="" aria-hidden decoding="async" onLoad={() => setReady(true)}
+          style={{ ...fill, opacity: ready ? 1 : 0 }} />
+      )}
+    </>
+  );
+}
+
 function WorkTile({ reel, active, onEnter, onLeave }) {
   const tileRef = useRef(null);
-  const iframeRef = useRef(null);
-  const [loaded, setLoaded] = useState(false);
-  const [dims, setDims] = useState({ w: 0, h: 0 });   // the film's true pixel size
-  const { inView, entered } = useNearViewport(tileRef);
+  const { entered } = useNearViewport(tileRef);
   const lb = useLightbox();
-  const aspect = dims.w && dims.h ? dims.w / dims.h : 16 / 9;
-
-  useEffect(() => {
-    const onMsg = (e) => {
-      const win = iframeRef.current && iframeRef.current.contentWindow;
-      if (!win || e.source !== win) return;                 // only our own player
-      let d; try { d = typeof e.data === 'string' ? JSON.parse(e.data) : e.data; } catch { return; }
-      if (!d) return;
-      if (d.event === 'ready') {
-        win.postMessage(JSON.stringify({ method: 'getVideoWidth' }), '*');
-        win.postMessage(JSON.stringify({ method: 'getVideoHeight' }), '*');
-      }
-      if (d.method === 'getVideoWidth') setDims((p) => ({ ...p, w: d.value }));
-      if (d.method === 'getVideoHeight') setDims((p) => ({ ...p, h: d.value }));
-    };
-    window.addEventListener('message', onMsg);
-    return () => window.removeEventListener('message', onMsg);
-  }, []);
-
-  // A background embed never emits 'ready' - that event only goes to embeds that
-  // opt into the JS API - so the handshake above can't start on its own. Ask for
-  // the size once the frame loads and keep asking until the player answers.
-  // Without the true frame size the tile assumes 16:9, and the player then
-  // letterboxes anything wider inside it: that is where the black bands on some
-  // tiles came from.
-  useEffect(() => {
-    if (!loaded || (dims.w && dims.h)) return;
-    const ask = () => {
-      const win = iframeRef.current && iframeRef.current.contentWindow;
-      if (!win) return;
-      win.postMessage(JSON.stringify({ method: 'getVideoWidth' }), '*');
-      win.postMessage(JSON.stringify({ method: 'getVideoHeight' }), '*');
-    };
-    ask();
-    let tries = 0;
-    const t = setInterval(() => { if (++tries > 12) clearInterval(t); else ask(); }, 400);
-    return () => clearInterval(t);
-  }, [loaded, dims.w, dims.h]);
-
-  // Cover the tile in plain percentages of the tile box rather than container
-  // query units: cqw/cqh resolve to zero wherever the container's own size is
-  // still being worked out, which left the frame short of the tile and read as a
-  // letterbox band. Percentages against the tile resolve the same everywhere, so
-  // all six films end up at identical rendered dimensions.
-  const zoom = TILE_ZOOM * (reel.zoom || 1);
-  const cover = aspect >= TILE_AR
-    ? { width: `${(100 * zoom * aspect / TILE_AR).toFixed(2)}%`, height: `${(100 * zoom).toFixed(2)}%` }
-    : { width: `${(100 * zoom).toFixed(2)}%`, height: `${(100 * zoom * TILE_AR / aspect).toFixed(2)}%` };
-
-  // At rest the tile runs the film's first few seconds on a loop — a GIF in
-  // everything but format. Hovering lets the same player run on into the film.
-  useVimeoLoop(iframeRef, { ready: loaded && inView, full: active });
-
-  // Scrolled away entirely: stop, so off-screen tiles aren't streaming.
-  useEffect(() => {
-    if (inView) return;
-    const win = iframeRef.current && iframeRef.current.contentWindow;
-    if (win) win.postMessage(JSON.stringify({ method: 'pause' }), '*');
-  }, [inView]);
 
   const openPlayer = () => {
     const list = WORK_REELS.map((r) => ({
@@ -1083,44 +1012,22 @@ function WorkTile({ reel, active, onEnter, onLeave }) {
         boxShadow: active ? '0 0 32px rgba(255,255,255,0.28)' : '0 0 0 rgba(255,255,255,0)',
         transition: 'box-shadow 0.35s ease, outline-color 0.35s ease',
         position: 'relative', overflow: 'hidden', borderRadius: 14, cursor: 'pointer', background: '#111',
-        // the frame inside is transformed and oversized; isolating the tile keeps
-        // it on the same compositing layer so the rounded corners actually clip it
+        // isolating the tile keeps the scaled cover on the same compositing
+        // layer so the rounded corners actually clip it
         isolation: 'isolate',
       }}>
-      {/* thumbnail — the tile's resting state, and what the video fades back to */}
-      <img src={`https://vumbnail.com/${reel.id}.jpg`} alt={reel.title}
-        style={{
-          position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover',
-          transform: `scale(${(zoom * (active ? 1 : 1.04)).toFixed(3)})`,
-          transition: 'transform 0.6s ease'
-        }} />
-
-      {/* video — mounts as the tile nears the viewport and becomes the tile's
-          resting state: a looping 3s teaser that runs on into the film on hover.
-          The thumbnail underneath covers the gap until it has buffered. */}
-      {entered && (
-        <iframe ref={iframeRef} title={reel.title} loading="lazy"
-          onLoad={() => setLoaded(true)}
-          src={`https://player.vimeo.com/video/${reel.id}?h=${reel.h}&background=1&autoplay=1&muted=1&loop=1`}
-          style={{
-            position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
-            width: cover.width, height: cover.height,
-            border: 'none', pointerEvents: 'none',
-            opacity: loaded ? 1 : 0, transition: 'opacity 0.4s ease'
-          }}
-          allow="autoplay; fullscreen; picture-in-picture" />
-      )}
+      <ReelCover reel={reel} load={entered} scale={TILE_ZOOM * (active ? 1 : 1.04)} />
 
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(10,10,10,0.88) 0%, rgba(10,10,10,0.15) 48%, transparent 74%)' }} />
 
       {/* name + one-liner — only visible on hover */}
       {active && (
-        <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: 'clamp(16px,1.8vw,28px)', zIndex: 2 }}>
+        <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: 'clamp(16px, 1.8vw, calc(28px * var(--k)))', zIndex: 2 }}>
           <h3 style={{
             margin: 0, fontFamily: BB, fontWeight: 700, textTransform: 'uppercase', color: '#fff',
-            fontSize: 'clamp(20px,2vw,36px)', lineHeight: 0.98, letterSpacing: '-0.01em'
+            fontSize: 'max(clamp(20px, 2vw, calc(36px * var(--k))), var(--fs-min))', lineHeight: 0.98, letterSpacing: '-0.01em'
           }}>{reel.title}</h3>
-          <p style={{ margin: '8px 0 0', fontFamily: MR, fontSize: 'clamp(12px,0.95vw,15px)', color: 'rgba(255,255,255,0.78)', letterSpacing: '0.02em' }}>{reel.sub}</p>
+          <p style={{ margin: '8px 0 0', fontFamily: MR, fontSize: 'max(clamp(calc(12px * var(--fm)), 0.95vw, calc(15px * var(--k))), var(--fs-min))', color: 'rgba(255,255,255,0.78)', letterSpacing: '0.02em' }}>{reel.sub}</p>
         </div>
       )}
     </div>
@@ -1128,15 +1035,16 @@ function WorkTile({ reel, active, onEnter, onLeave }) {
 }
 
 function MobileWorkCard({ reel }) {
+  const ref = useRef(null);
+  const { entered } = useNearViewport(ref);
   return (
-    <div style={{ position: 'relative', height: '48vh', overflow: 'hidden' }}>
-      <img src={`https://vumbnail.com/${reel.id}.jpg`} alt={reel.title}
-        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+    <div ref={ref} style={{ position: 'relative', height: '48vh', overflow: 'hidden' }}>
+      <ReelCover reel={reel} load={entered} />
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(10,10,10,0.9) 0%, transparent 60%)' }} />
       <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: '20px' }}>
-        <span style={{ fontFamily: MR, fontSize: 11, letterSpacing: '0.14em', color: 'rgba(255,255,255,0.7)' }}>{reel.index}</span>
-        <h3 style={{ margin: '6px 0 6px', fontFamily: BB, fontWeight: 700, textTransform: 'uppercase', color: '#fff', fontSize: 'clamp(22px,6.5vw,34px)', lineHeight: 0.98 }}>{reel.title}</h3>
-        <p style={{ margin: 0, fontFamily: MR, fontSize: 12, color: 'rgba(255,255,255,0.72)' }}>{reel.sub}</p>
+        <span style={{ fontFamily: MR, fontSize: 'max(calc(11px * var(--k) * var(--fm)), var(--fs-min))', letterSpacing: '0.14em', color: 'rgba(255,255,255,0.7)' }}>{reel.index}</span>
+        <h3 style={{ margin: '6px 0 6px', fontFamily: BB, fontWeight: 700, textTransform: 'uppercase', color: '#fff', fontSize: 'max(clamp(22px, 6.5vw, calc(34px * var(--k))), var(--fs-min))', lineHeight: 0.98 }}>{reel.title}</h3>
+        <p style={{ margin: 0, fontFamily: MR, fontSize: 'max(calc(12px * var(--k) * var(--fm)), var(--fs-min))', color: 'rgba(255,255,255,0.72)' }}>{reel.sub}</p>
       </div>
     </div>
   );
@@ -1160,13 +1068,13 @@ export function WorkShowcase({ outerRef }) {
       {/* Section header */}
       {/* top pad clears the fixed navbar — it is transparent here, so without it
           the heading rides up underneath the social links and the centre mark */}
-      <div style={{ flexShrink: 0, padding: 'calc(var(--nav-h) - clamp(8px,1.8vh,24px)) clamp(20px,4vw,56px) clamp(14px,2.2vh,24px)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+      <div style={{ flexShrink: 0, padding: 'calc(var(--nav-h) - clamp(8px, 1.8vh, calc(24px * var(--k)))) clamp(20px, 4vw, calc(56px * var(--k))) clamp(14px, 2.2vh, calc(24px * var(--k)))', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 16 }}>
           <div style={{ minWidth: 0 }}>
             {/* Deck slide 5: heading 87.1px, sub 25px on the gold gradient. */}
             <h2 onMouseEnter={() => setTitleHover(true)} onMouseLeave={() => setTitleHover(false)}
               style={{
-                fontFamily: BB, fontWeight: 900, fontSize: 'clamp(28px,4.2vw,60px)', margin: '10px 0 0', lineHeight: 0.88, textTransform: 'uppercase', whiteSpace: isMobile ? 'normal' : 'nowrap', letterSpacing: '-0.02em', cursor: 'default',
+                fontFamily: BB, fontWeight: 900, fontSize: 'max(clamp(28px, 4.2vw, calc(60px * var(--k))), var(--fs-min))', margin: '10px 0 0', lineHeight: 0.88, textTransform: 'uppercase', whiteSpace: isMobile ? 'normal' : 'nowrap', letterSpacing: '-0.02em', cursor: 'default',
                 color: titleHover ? 'var(--yellow)' : '#fff',
                 WebkitTextStroke: titleHover ? '1px var(--yellow)' : '1px #fff',
                 transition: 'color 0.3s ease, -webkit-text-stroke-color 0.3s ease'
@@ -1174,7 +1082,7 @@ export function WorkShowcase({ outerRef }) {
               FEATURED WORK
             </h2>
             <p style={{
-              margin: '8px 0 0', fontFamily: BB, fontSize: 'clamp(14px,1.74vw,25px)', lineHeight: 1.1,
+              margin: '8px 0 0', fontFamily: BB, fontSize: 'max(clamp(calc(14px * var(--fm)), 1.74vw, calc(25px * var(--k))), var(--fs-min))', lineHeight: 1.1,
               textTransform: 'uppercase', backgroundImage: HERO_GOLD,
               WebkitBackgroundClip: 'text', backgroundClip: 'text',
               WebkitTextFillColor: 'transparent', color: 'transparent',
@@ -1185,11 +1093,11 @@ export function WorkShowcase({ outerRef }) {
           {/* Group 11 in the deck — 125x39, #FED758 with #17191A copy. */}
           <Link to="/work" style={{
             flexShrink: 0, alignSelf: 'flex-end', marginBottom: 8,
-            width: 'clamp(104px,8.68vw,125px)', height: 'clamp(32px,2.71vw,39px)',
+            width: 'clamp(104px, 8.68vw, calc(125px * var(--k)))', height: 'clamp(32px, 2.71vw, calc(39px * var(--k)))',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             background: '#FED758', textDecoration: 'none',
           }}>
-            <span style={{ fontFamily: BB, fontSize: 'clamp(11px,0.88vw,13px)', color: '#17191A', textTransform: 'uppercase', lineHeight: 1, whiteSpace: 'nowrap' }}>
+            <span style={{ fontFamily: BB, fontSize: 'max(clamp(calc(11px * var(--fm)), 0.88vw, calc(13px * var(--k))), var(--fs-min))', color: '#17191A', textTransform: 'uppercase', lineHeight: 1, whiteSpace: 'nowrap' }}>
               View Everything
             </span>
           </Link>
@@ -1212,14 +1120,14 @@ export function WorkShowcase({ outerRef }) {
           style={{
             flex: '1 1 auto', minHeight: 0,
             display: 'flex', flexDirection: 'column', justifyContent: 'center',
-            rowGap: 'clamp(28px,7vh,90px)',
-            padding: 'clamp(10px,1.6vh,24px) clamp(12px,1.5vw,28px) clamp(14px,2.2vh,32px)',
+            rowGap: 'clamp(28px, 7vh, calc(90px * var(--k)))',
+            padding: 'clamp(10px, 1.6vh, calc(24px * var(--k))) clamp(12px, 1.5vw, calc(28px * var(--k))) clamp(14px, 2.2vh, calc(32px * var(--k)))',
           }}>
           {[0, 1].map((row) => (
             <div key={row} style={{
               flex: '1 1 0', minHeight: 0,
               display: 'flex', justifyContent: 'center',
-              gap: 'clamp(14px,1.9vw,30px)',
+              gap: 'clamp(14px, 1.9vw, calc(30px * var(--k)))',
             }}>
               {WORK_REELS.slice(row * 3, row * 3 + 3).map((r) => (
                 <WorkTile key={r.index} reel={r}
@@ -1413,14 +1321,15 @@ function ClientsCarousel() {
   const onUp = () => { drag.current.on = false; };
 
   return (
-    <div>
+    // the logos already move on their own; scroll reveals would fight the 3D ring
+    <div data-no-reveal>
       {/* 3D stage */}
       <div
         onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}
         onMouseEnter={() => { hoverRef.current = true; }}
         onMouseLeave={() => { hoverRef.current = false; }}
         style={{
-          perspective: 1600, width: '50vw', height: 'clamp(110px,16vh,170px)', margin: '0 auto',
+          perspective: 1600, width: '50vw', height: 'clamp(110px, 16vh, calc(170px * var(--k)))', margin: '0 auto',
           cursor: drag.current.on ? 'grabbing' : 'grab', touchAction: 'pan-y',
           display: 'flex', alignItems: 'center', justifyContent: 'center'
         }}>
@@ -1441,9 +1350,7 @@ function TestimonialCard({ t }) {
   const initials = t.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
   return (
     <li style={{
-      // wider than the old card: these are real quotes and run long, and fewer
-      // lines per quote is what keeps them inside a card that has to fit the fold
-      listStyle: 'none', flex: '0 0 auto', width: 'clamp(380px,34vw,560px)', height: '100%',
+      listStyle: 'none', flex: '0 0 auto', width: 430, height: '100%',
       background: 'rgb(246,246,246)', padding: 'clamp(20px,2.6vh,32px)', overflow: 'hidden',
       display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
     }}>
@@ -1454,7 +1361,7 @@ function TestimonialCard({ t }) {
         </svg>
         {/* holds 19px on a normal window and only gives ground on a short one,
             so the quote never outgrows a card that has to fit the fold */}
-        <p style={{ margin: 0, fontFamily: MR, fontWeight: 500, fontSize: 'clamp(15px,2.2vh,19px)', lineHeight: 1.4, color: 'rgb(51,51,54)' }}>
+        <p style={{ margin: 0, fontFamily: MR, fontWeight: 500, fontSize: 'max(clamp(calc(15px * var(--fm)), 2.2vh, calc(19px * var(--k))), var(--fs-min))', lineHeight: 1.4, color: 'rgb(51,51,54)' }}>
           {t.quote}
         </p>
       </div>
@@ -1463,13 +1370,11 @@ function TestimonialCard({ t }) {
         <span style={{
           width: 32, height: 32, borderRadius: '50%', background: '#111', color: '#fff',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontFamily: MR, fontWeight: 600, fontSize: 12, flexShrink: 0
+          fontFamily: MR, fontWeight: 600, fontSize: 'max(calc(12px * var(--k) * var(--fm)), var(--fs-min))', flexShrink: 0
         }}>{initials}</span>
         <div>
           <p style={{ margin: 0, fontFamily: MR, fontWeight: 500, fontSize: 21, lineHeight: 1.3, color: 'rgb(51,51,54)' }}>{t.name}</p>
-          {t.role && (
-            <p style={{ margin: 0, fontFamily: MR, fontWeight: 500, fontSize: 17, lineHeight: 1.2, color: 'rgb(51,51,54)' }}>{t.role}</p>
-          )}
+          <p style={{ margin: 0, fontFamily: MR, fontWeight: 500, fontSize: 17, lineHeight: 1.2, color: 'rgb(51,51,54)' }}>{t.role}</p>
           <p style={{ margin: 0, fontFamily: MR, fontWeight: 400, fontSize: 15, lineHeight: 1.2, color: 'rgb(111,111,117)' }}>{t.company}</p>
         </div>
       </div>
@@ -1484,24 +1389,24 @@ function BrandsMarquee() {
     // Exactly one screen: the heading, the ring and the cards are all sized off
     // the viewport, and the card row takes whatever height is left over, so the
     // whole section lands inside the fold at any window size.
-    <div data-nav-light data-snap style={{
+    <div data-nav-light data-snap className="brands-section" style={{
       position: 'relative', zIndex: 3, background: '#fff', overflow: 'hidden',
       height: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center',
       // the top pad clears the fixed navbar, which is transparent here - without
       // it the centred heading rides up under the centre logo
-      padding: 'calc(var(--nav-h) + clamp(8px,1.5vh,20px)) clamp(20px,4vw,72px) clamp(24px,4vh,56px)'
+      padding: 'calc(var(--nav-h) + clamp(8px, 1.5vh, calc(20px * var(--k)))) clamp(20px, 4vw, calc(72px * var(--k))) clamp(24px, 4vh, calc(56px * var(--k)))'
     }}>
 
       {/* Heading */}
       <div style={{ textAlign: 'center', flexShrink: 0 }}>
         <h2 style={{
           margin: 0, fontFamily: BB, fontWeight: 900, textTransform: 'uppercase', color: '#111',
-          fontSize: 'clamp(26px,3.2vw,48px)', lineHeight: 0.9, letterSpacing: '-0.02em'
+          fontSize: 'max(clamp(26px, 3.2vw, calc(48px * var(--k))), var(--fs-min))', lineHeight: 0.9, letterSpacing: '-0.02em'
         }}>TRUSTED BY</h2>
       </div>
 
       {/* 3D logo rotator */}
-      <div style={{ marginTop: 'clamp(10px,2.4vh,28px)', flexShrink: 0 }}>
+      <div style={{ marginTop: 'clamp(10px, 2.4vh, calc(28px * var(--k)))', flexShrink: 0 }}>
         <ClientsCarousel />
       </div>
 
@@ -1509,7 +1414,7 @@ function BrandsMarquee() {
           horizontal marquee of quote cards (Arpeggio pattern). The track holds
           two copies of the list so the loop is seamless. */}
       <div style={{
-        marginTop: 'clamp(14px,3vh,40px)', display: 'flex', gap: 24, alignItems: 'stretch',
+        marginTop: 'clamp(14px, 3vh, calc(40px * var(--k)))', display: 'flex', gap: 24, alignItems: 'stretch',
         flex: '1 1 auto', minHeight: 0,   // absorbs the leftover height
       }}>
 
@@ -1580,18 +1485,13 @@ const SERVICE_CATEGORIES = [
 function ServiceCategoryRow({ cat }) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, amount: 0.25 });
-  const isMobile = useIsMobile();
+  // Phones and portrait tablets stack the copy over the film; side by side
+  // only once there is a real landscape row to split.
+  const stacked = useIsMobile(1024);
   const [videoReady, setVideoReady] = useState(false);
   const mediaRef = useRef(null);
   const media = useNearViewport(mediaRef);
-  const svcIframeRef = useRef(null);
-
-  // Pause the service video when it scrolls off-screen; play when back in view.
-  useEffect(() => {
-    const win = svcIframeRef.current && svcIframeRef.current.contentWindow;
-    if (!win) return;
-    win.postMessage(JSON.stringify({ method: media.inView ? 'play' : 'pause' }), '*');
-  }, [media.inView]);
+  const art = cat.video ? coverFor(cat.video.id) : {};
 
   // Slide-up-from-bottom reveal, staggered top→down.
   const EASE_OUT = [0.16, 1, 0.3, 1];
@@ -1601,8 +1501,8 @@ function ServiceCategoryRow({ cat }) {
     transition: { duration: 0.75, ease: EASE_OUT, delay: 0.06 * i },
   });
 
-  // Prefer the video's own thumbnail as the poster; the category image is the fallback (no video).
-  const posterSrc = cat.video ? `https://vumbnail.com/${cat.video.id}.jpg` : cat.image;
+  // The film's own poster frame first; the category image is the fallback (no video).
+  const posterSrc = art.poster || cat.image;
   const image = (
     <motion.div
       initial={{ opacity: 0, clipPath: 'inset(14% 0% 0% 0%)' }}
@@ -1617,61 +1517,67 @@ function ServiceCategoryRow({ cat }) {
         )}
         {!posterSrc && <div style={{ position: 'absolute', inset: 0, background: 'rgba(17,17,17,0.04)' }} />}
 
-        {cat.video && media.entered && (
-          // Vimeo background video — mounts only near the viewport; covers via container units; fades in on load
-          <iframe ref={svcIframeRef} title={cat.title.replace('\n', ' ')} loading="lazy"
+        {art.cover && media.entered && (
+          // The film's GIF cover — loads only near the viewport and fades in over the poster
+          <img src={art.cover} alt="" aria-hidden decoding="async"
             onLoad={() => setVideoReady(true)}
-            src={`https://player.vimeo.com/video/${cat.video.id}?h=${cat.video.h}&background=1&autoplay=1&muted=1&loop=1${cat.video.start ? `#t=${cat.video.start}s` : ''}`}
             style={{
-              position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
-              width: 'max(100cqw, 177.78cqh)', height: 'max(56.25cqw, 100cqh)', border: 'none', pointerEvents: 'none',
+              position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block',
               opacity: videoReady ? 1 : 0, transition: 'opacity 0.5s ease'
-            }}
-            allow="autoplay; fullscreen; picture-in-picture" />
+            }} />
         )}
       </div>
     </motion.div>
   );
 
-  const text = (
-    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: 'clamp(24px,3.5vw,52px)' }}>
-      <motion.div {...rise(0)}
-        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 20 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontFamily: MR, fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(17,17,17,0.45)', fontWeight: 600 }}>{cat.label}</span>
-          <span style={{ width: 16, height: 2, background: 'var(--yellow)', display: 'inline-block' }} />
-        </div>
-        <span style={{ fontFamily: MR, fontSize: 11, color: 'rgba(17,17,17,0.25)' }}>/{cat.index}</span>
-      </motion.div>
+  // Type scales with the column it sits in, all the way up to TV widths, so the
+  // copy holds its half of the row instead of floating small in white space.
+  const T = stacked
+    ? { pad: 'clamp(28px, 6vw, calc(64px * var(--k))) clamp(20px, 6vw, calc(64px * var(--k))) clamp(24px, 4vw, calc(40px * var(--k)))', label: 'clamp(10px, 2.4vw, calc(13px * var(--k)))', h: 'clamp(34px, 9vw, calc(72px * var(--k)))', p: 'clamp(14px, 3.4vw, calc(19px * var(--k)))', li: 'clamp(13px, 3vw, calc(17px * var(--k)))', liPad: 'clamp(9px, 2vw, calc(14px * var(--k))) 0', maxW: 640 }
+    : { pad: 'clamp(40px, 5vw, calc(160px * var(--k)))', label: 'clamp(11px, 0.78vw, calc(22px * var(--k)))', h: 'clamp(44px, 4.4vw, calc(140px * var(--k)))', p: 'clamp(15px, 1.12vw, calc(34px * var(--k)))', li: 'clamp(13px, 0.95vw, calc(28px * var(--k)))', liPad: 'clamp(10px, 0.85vw, calc(24px * var(--k))) 0', maxW: 'min(100%, 34vw)' };
 
-      <motion.h3 {...rise(1)}
-        style={{ fontFamily: BB, fontWeight: 700, fontSize: 'clamp(26px,2vw,42px)', color: 'var(--ink)', margin: '0 0 14px', textTransform: 'uppercase', lineHeight: 0.92, whiteSpace: 'pre-line' }}>
-        {cat.title}
-      </motion.h3>
-      <motion.p {...rise(2)}
-        style={{ fontFamily: MR, fontWeight: 400, fontSize: 'clamp(12px,0.8vw,15px)', color: 'rgba(17,17,17,0.6)', lineHeight: 1.7, maxWidth: 340, marginBottom: 20 }}>{cat.desc}</motion.p>
-      {cat.bullets.map((b, bi) => (
-        <motion.div key={b} {...rise(3 + bi)}
-          style={{ display: 'flex', alignItems: 'baseline', gap: 10, padding: '8px 0', borderBottom: '1px solid rgba(17,17,17,0.07)' }}>
-          <span style={{ color: 'var(--yellow)', fontWeight: 800, fontSize: 13, flexShrink: 0 }}>+</span>
-          <span style={{ fontFamily: MR, fontWeight: 500, fontSize: 'clamp(11px,0.72vw,14px)', color: 'rgba(17,17,17,0.75)' }}>{b}</span>
+  const text = (
+    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: T.pad }}>
+      <div style={{ width: '100%', maxWidth: T.maxW }}>
+        <motion.div {...rise(0)}
+          style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '1.6em', fontSize: T.label }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.9em' }}>
+            <span style={{ fontFamily: MR, fontSize: '1em', letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(17,17,17,0.5)', fontWeight: 600 }}>{cat.label}</span>
+            <span style={{ width: '1.6em', height: 2, background: 'var(--yellow)', display: 'inline-block' }} />
+          </div>
+          <span style={{ fontFamily: MR, fontSize: '1.1em', color: 'rgba(17,17,17,0.3)' }}>/{cat.index}</span>
         </motion.div>
-      ))}
+
+        <motion.h3 {...rise(1)}
+          style={{ fontFamily: BB, fontWeight: 700, fontSize: T.h, color: 'var(--ink)', margin: '0 0 0.34em', textTransform: 'uppercase', lineHeight: 0.92, whiteSpace: 'pre-line' }}>
+          {cat.title}
+        </motion.h3>
+        <motion.p {...rise(2)}
+          style={{ fontFamily: MR, fontWeight: 400, fontSize: T.p, color: 'rgba(17,17,17,0.62)', lineHeight: 1.6, margin: '0 0 1.5em' }}>{cat.desc}</motion.p>
+        {cat.bullets.map((b, bi) => (
+          <motion.div key={b} {...rise(3 + bi)}
+            style={{ display: 'flex', alignItems: 'baseline', gap: '0.8em', padding: T.liPad, borderBottom: '1px solid rgba(17,17,17,0.09)', fontSize: T.li }}>
+            <span style={{ color: 'var(--yellow)', fontWeight: 800, fontSize: '1.1em', flexShrink: 0 }}>+</span>
+            <span style={{ fontFamily: MR, fontWeight: 500, fontSize: '1em', color: 'rgba(17,17,17,0.78)' }}>{b}</span>
+          </motion.div>
+        ))}
+      </div>
     </div>
   );
 
-  if (isMobile) {
+  if (stacked) {
     return (
       <div ref={ref} style={{ height: '100%', display: 'flex', flexDirection: 'column', borderTop: '1px solid rgba(17,17,17,0.12)' }}>
         {text}
-        <div style={{ flex: 1, minHeight: '42vh' }}>{image}</div>
+        <div style={{ flex: 1, minHeight: '38vh' }}>{image}</div>
       </div>
     );
   }
 
-  // Desktop: text left 60%, film fills the right 40% edge-to-edge, full row height.
+  // Desktop: text and film share the row evenly; the film runs edge-to-edge,
+  // full row height.
   return (
-    <div ref={ref} style={{ height: '100%', display: 'grid', gridTemplateColumns: '60fr 40fr', borderTop: '1px solid rgba(17,17,17,0.12)' }}>
+    <div ref={ref} style={{ height: '100%', display: 'grid', gridTemplateColumns: '1fr 1fr', borderTop: '1px solid rgba(17,17,17,0.12)' }}>
       {text}
       {image}
     </div>
@@ -1723,10 +1629,10 @@ function ServicesReveal() {
   if (isMobile) {
     return (
       <div style={{ background: '#fff', padding: '64px 20px 48px' }}>
-        <h2 style={{ margin: 0, fontFamily: BB, fontWeight: 900, fontSize: 'clamp(52px,17vw,88px)', color: 'var(--ink)', lineHeight: 0.9, letterSpacing: '-0.03em' }}>
+        <h2 style={{ margin: 0, fontFamily: BB, fontWeight: 900, fontSize: 'max(clamp(52px, 17vw, calc(88px * var(--k))), var(--fs-min))', color: 'var(--ink)', lineHeight: 0.9, letterSpacing: '-0.03em' }}>
           what we do
         </h2>
-        <p style={{ margin: '20px 0 0', fontFamily: MR, fontWeight: 700, fontSize: 'clamp(17px,4.6vw,24px)', color: 'rgb(111,111,117)', lineHeight: 1.2, letterSpacing: '-0.02em' }}>
+        <p style={{ margin: '20px 0 0', fontFamily: MR, fontWeight: 700, fontSize: 'max(clamp(calc(17px * var(--fm)), 4.6vw, calc(24px * var(--k))), var(--fs-min))', color: 'rgb(111,111,117)', lineHeight: 1.2, letterSpacing: '-0.02em' }}>
           Cinematic craft and end-to-end production, engineered to make every frame count.
         </p>
       </div>
@@ -1746,18 +1652,18 @@ function ServicesReveal() {
           position: 'absolute', inset: 0, background: '#fff',
           clipPath: 'circle(0% at 50% 100%)', willChange: 'clip-path',
           display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center',
-          padding: '0 clamp(12px,2vw,28px) clamp(20px,4vh,48px)',
+          padding: '0 clamp(12px, 2vw, calc(28px * var(--k))) clamp(20px, 4vh, calc(48px * var(--k)))',
         }}>
           <h2 style={{
             margin: 0, width: '100%', fontFamily: BB, fontWeight: 900,
-            fontSize: 'clamp(48px,12.9vw,248px)', color: 'var(--ink)', lineHeight: 0.82,
+            fontSize: 'max(clamp(48px, 12.9vw, calc(248px * var(--k))), var(--fs-min))', color: 'var(--ink)', lineHeight: 0.82,
             letterSpacing: '-0.045em', wordSpacing: '-0.12em', whiteSpace: 'nowrap', WebkitTextStroke: '2px var(--ink)',
           }}>
             what we do
           </h2>
           <p style={{
-            margin: 'clamp(30px,5vh,60px) 0 0', fontFamily: MR, fontWeight: 700,
-            fontSize: 'clamp(16px,3.09vw,60px)', color: 'rgb(111,111,117)', lineHeight: 1.1,
+            margin: 'clamp(30px, 5vh, calc(60px * var(--k))) 0 0', fontFamily: MR, fontWeight: 700,
+            fontSize: 'max(clamp(calc(16px * var(--fm)), 3.09vw, calc(60px * var(--k))), var(--fs-min))', color: 'rgb(111,111,117)', lineHeight: 1.1,
             letterSpacing: '-0.04em',
           }}>
             Cinematic craft and end-to-end production,<br />engineered to make every frame count.
@@ -1782,8 +1688,8 @@ function ServicesSection({ outerRef }) {
       {/* Circle-open intro with the giant SERVICES heading */}
       <ServicesReveal />
 
-      <div style={{ padding: 'clamp(20px,3vh,36px) clamp(20px,4vw,56px) clamp(24px,4vh,40px)' }}>
-        <p style={{ fontFamily: MR, fontWeight: 600, fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(17,17,17,0.4)', margin: 0 }}>
+      <div style={{ padding: 'clamp(20px, 3vh, calc(36px * var(--k))) clamp(20px, 4vw, calc(56px * var(--k))) clamp(24px, 4vh, calc(40px * var(--k)))' }}>
+        <p style={{ fontFamily: MR, fontWeight: 600, fontSize: 'max(calc(11px * var(--k) * var(--fm)), var(--fs-min))', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(17,17,17,0.4)', margin: 0 }}>
           Agency · Production House · Post · Digital
         </p>
       </div>
@@ -1815,25 +1721,25 @@ function AboutSection() {
   const isMobile = useIsMobile();
 
   return (
-    <div ref={ref} style={{ height: '100%', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.1fr 0.9fr', gap: isMobile ? 20 : 'clamp(24px,4vw,56px)', padding: isMobile ? '28px 20px' : 'clamp(24px,3.5vw,52px)', alignItems: 'center' }}>
+    <div ref={ref} style={{ height: '100%', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.1fr 0.9fr', gap: isMobile ? 20 : 'clamp(24px, 4vw, calc(56px * var(--k)))', padding: isMobile ? '28px 20px' : 'clamp(24px, 3.5vw, calc(52px * var(--k)))', alignItems: 'center' }}>
       <div>
         <Kicker>Who We Are</Kicker>
-        <h2 style={{ fontFamily: BB, fontWeight: 700, fontSize: 'clamp(34px,5vw,64px)', color: 'var(--ink)', lineHeight: 0.9, margin: '10px 0 22px', textTransform: 'uppercase' }}>
+        <h2 style={{ fontFamily: BB, fontWeight: 700, fontSize: 'max(clamp(34px, 5vw, calc(64px * var(--k))), var(--fs-min))', color: 'var(--ink)', lineHeight: 0.9, margin: '10px 0 22px', textTransform: 'uppercase' }}>
           {inView && <RevealWords text="PRODUCTION" />}<br />
           {inView && <RevealWords text="FIRST." />}<br />
           {inView && <RevealWords text="STORY ALWAYS." />}
         </h2>
         <motion.p initial={{ opacity: 0, y: 14 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ delay: 0.4, duration: DURATION, ease: EASE }}
-          style={{ fontFamily: MR, fontWeight: 400, fontSize: 'clamp(14px,1.6vw,16px)', color: 'rgba(17,17,17,0.6)', lineHeight: 1.7, maxWidth: 460 }}>
+          style={{ fontFamily: MR, fontWeight: 400, fontSize: 'max(clamp(calc(14px * var(--fm)), 1.6vw, calc(16px * var(--k))), var(--fs-min))', color: 'rgba(17,17,17,0.6)', lineHeight: 1.7, maxWidth: 'calc(460px * var(--k))' }}>
           At Bambai Dreams, we're a production-first company built on the backbone of strong storytelling, cinematic craft, and seamless execution. From large-scale brand films to fast-moving digital content, we produce with precision, passion, and purpose.
         </motion.p>
         <motion.p initial={{ opacity: 0, y: 14 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ delay: 0.55, duration: DURATION, ease: EASE }}
-          style={{ fontFamily: MR, fontWeight: 400, fontSize: 'clamp(14px,1.6vw,16px)', color: 'rgba(17,17,17,0.45)', lineHeight: 1.7, maxWidth: 460, marginTop: 14 }}>
+          style={{ fontFamily: MR, fontWeight: 400, fontSize: 'max(clamp(calc(14px * var(--fm)), 1.6vw, calc(16px * var(--k))), var(--fs-min))', color: 'rgba(17,17,17,0.45)', lineHeight: 1.7, maxWidth: 'calc(460px * var(--k))', marginTop: 14 }}>
           Backed by top-tier talent, trusted directors, and a battle-tested crew — we deliver high-quality work that's both effective and emotionally engaging in today's fast-paced content landscape.
         </motion.p>
       </div>
       {!isMobile && (
-        <motion.div style={{ height: 'clamp(220px,38vw,420px)' }} initial={{ opacity: 0, scale: 0.96 }} animate={inView ? { opacity: 1, scale: 1 } : {}} transition={{ duration: DURATION, ease: EASE }}>
+        <motion.div style={{ height: 'clamp(220px, 38vw, calc(420px * var(--k)))' }} initial={{ opacity: 0, scale: 0.96 }} animate={inView ? { opacity: 1, scale: 1 } : {}} transition={{ duration: DURATION, ease: EASE }}>
           <PlaceholderBlock palette={PALETTES.studio} label="Placeholder Photo — Studio" height="100%" />
         </motion.div>
       )}
@@ -1848,20 +1754,20 @@ function ContactSection() {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, amount: 0.3 });
   return (
-    <div ref={ref} style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '0 clamp(24px,6vw,80px)' }}>
+    <div ref={ref} style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '0 clamp(24px, 6vw, calc(80px * var(--k)))' }}>
       <Kicker>Let's Connect</Kicker>
-      <h2 style={{ fontFamily: BB, fontWeight: 700, fontSize: 'clamp(30px,min(5.2vw,8.5vh),68px)', color: 'var(--ink)', lineHeight: 0.92, maxWidth: 860, margin: 'clamp(6px,1.2vh,14px) 0 0', textTransform: 'uppercase' }}>
+      <h2 style={{ fontFamily: BB, fontWeight: 700, fontSize: 'clamp(34px, min(6.4vw, 11vh), calc(124px * var(--k)))', color: 'var(--ink)', lineHeight: 0.92, maxWidth: 'calc(1200px * var(--k))', margin: 'clamp(6px, 1.2vh, calc(14px * var(--k))) 0 0', textTransform: 'uppercase' }}>
         {inView && <RevealWords text="CREATE COMPELLING" />}<br />
         {inView && <RevealWords text="STORIES WITH US." />}
       </h2>
       <motion.p initial={{ opacity: 0, y: 10 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ delay: 0.45, duration: DURATION, ease: EASE }}
-        style={{ fontFamily: MR, fontWeight: 400, fontSize: 'clamp(13px,1.5vw,16px)', color: 'rgba(17,17,17,0.55)', lineHeight: 1.6, maxWidth: 520, marginTop: 'clamp(8px,1.6vh,20px)' }}>
+        style={{ fontFamily: MR, fontWeight: 400, fontSize: 'max(clamp(calc(13px * var(--fm)), 1.15vw, calc(22px * var(--k))), var(--fs-min))', color: 'rgba(17,17,17,0.6)', lineHeight: 1.6, maxWidth: '44em', marginTop: 'clamp(8px, 1.6vh, calc(20px * var(--k)))' }}>
         We're driven by a profound desire to create compelling stories and collaborate with a diverse range of brands. We eagerly anticipate the opportunity to bring extraordinary stories to life together.
       </motion.p>
       {/* name / phones / email deliberately not repeated here — the footer
           directly below carries the same details */}
       <motion.div initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}} transition={{ delay: 0.6, duration: DURATION, ease: EASE }}>
-        <Link to="/contact" data-cursor="HELLO" className="btn-mr" style={{ marginTop: 'clamp(20px,4vh,44px)', fontFamily: MR, fontWeight: 700, fontSize: 12, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#fff', background: 'var(--ink)', padding: '16px 36px', textDecoration: 'none', display: 'inline-block' }}>
+        <Link to="/contact" data-cursor="HELLO" className="btn-mr" style={{ marginTop: 'clamp(20px, 4vh, calc(44px * var(--k)))', fontFamily: MR, fontWeight: 700, fontSize: 'max(clamp(calc(12px * var(--fm)), 0.9vw, calc(17px * var(--k))), var(--fs-min))', letterSpacing: '0.08em', textTransform: 'uppercase', color: '#fff', background: 'var(--ink)', padding: '1.3em 3em', textDecoration: 'none', display: 'inline-block' }}>
           START A PROJECT
         </Link>
       </motion.div>

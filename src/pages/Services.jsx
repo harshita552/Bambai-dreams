@@ -39,14 +39,14 @@ function ServiceBlock({ service, videos, i }) {
           onHoverStart={() => setHov(true)} onHoverEnd={() => setHov(false)}
           style={{
             position: 'relative', background: 'var(--paper)',
-            border: '1px solid var(--ink)', padding: 'clamp(36px,5vw,60px)',
+            border: '1px solid var(--ink)', padding: 'clamp(36px, 5vw, calc(60px * var(--k)))',
             overflow: 'hidden', cursor: 'pointer',
           }}>
           {/* Number watermark */}
           <span aria-hidden style={{
             position: 'absolute', right: 24, top: '50%', transform: 'translateY(-50%)',
             fontFamily: '"Playfair Display",serif', fontWeight: 900,
-            fontSize: 'clamp(80px,14vw,140px)', color: 'var(--cream-dark)',
+            fontSize: 'max(clamp(80px, 14vw, calc(140px * var(--k))), var(--fs-min))', color: 'var(--cream-dark)',
             lineHeight: 1, userSelect: 'none', zIndex: 0,
           }}>{service.number}</span>
 
@@ -57,8 +57,8 @@ function ServiceBlock({ service, videos, i }) {
                          : { clipPath: 'polygon(0% 100%,100% 100%,100% 100%,0% 100%)' }}
             transition={{ duration: 0.4 }}
             style={{ position: 'absolute', inset: 0, background: 'var(--ink)', zIndex: 1 }}>
-            <div style={{ padding: 'clamp(36px,5vw,60px)', height: '100%', display: 'flex', alignItems: 'center' }}>
-              <p style={{ fontFamily: '"Playfair Display",serif', fontWeight: 900, fontSize: 'clamp(28px,5vw,52px)', color: 'var(--cream)' }}>
+            <div style={{ padding: 'clamp(36px, 5vw, calc(60px * var(--k)))', height: '100%', display: 'flex', alignItems: 'center' }}>
+              <p style={{ fontFamily: '"Playfair Display",serif', fontWeight: 900, fontSize: 'max(clamp(28px, 5vw, calc(52px * var(--k))), var(--fs-min))', color: 'var(--cream)' }}>
                 {service.name}
               </p>
             </div>
@@ -68,13 +68,13 @@ function ServiceBlock({ service, videos, i }) {
             <p className="kicker" style={{ marginBottom: 14 }}>{service.number} / 05</p>
             <h2 style={{
               fontFamily: '"Playfair Display",serif', fontWeight: 900,
-              fontSize: 'clamp(28px,4.5vw,52px)', color: 'var(--ink)', marginBottom: 12,
+              fontSize: 'max(clamp(28px, 4.5vw, calc(52px * var(--k))), var(--fs-min))', color: 'var(--ink)', marginBottom: 12,
             }}>{service.name}</h2>
             <p style={{
               fontFamily: '"IM Fell English",serif', fontStyle: 'italic',
-              fontSize: 16, color: 'var(--ink-mid)', marginBottom: 22,
+              fontSize: 'max(calc(16px * var(--k) * var(--fm)), var(--fs-min))', color: 'var(--ink-mid)', marginBottom: 22,
             }}>{service.tagline}</p>
-            <span style={{ fontFamily: '"DM Sans",sans-serif', fontSize: 11, color: 'var(--gold)', letterSpacing: '0.1em' }}>
+            <span style={{ fontFamily: '"DM Sans",sans-serif', fontSize: 'max(calc(11px * var(--k) * var(--fm)), var(--fs-min))', color: 'var(--gold)', letterSpacing: '0.1em' }}>
               Explore Full Category →
             </span>
           </div>
@@ -124,17 +124,17 @@ export default function Services() {
       style={{ paddingTop: 64 }}>
 
       <div style={{
-        padding: 'clamp(56px,8vw,88px) clamp(24px,4vw,48px) clamp(36px,4vw,48px)',
+        padding: 'clamp(56px, 8vw, calc(88px * var(--k))) clamp(24px, 4vw, calc(48px * var(--k))) clamp(36px, 4vw, calc(48px * var(--k)))',
         background: 'var(--cream)', borderBottom: '3px double var(--ink)',
       }}>
         <p className="kicker" style={{ marginBottom: 12 }}>✦ What We Create</p>
         <h1 style={{
           fontFamily: '"Playfair Display",serif', fontWeight: 900,
-          fontSize: 'clamp(36px,7vw,80px)', color: 'var(--ink)',
+          fontSize: 'max(clamp(36px, 7vw, calc(80px * var(--k))), var(--fs-min))', color: 'var(--ink)',
         }}>Our Services</h1>
       </div>
 
-      <div style={{ padding: 'clamp(48px,6vw,80px) clamp(24px,4vw,48px)', background: 'var(--cream)' }}>
+      <div style={{ padding: 'clamp(48px, 6vw, calc(80px * var(--k))) clamp(24px, 4vw, calc(48px * var(--k)))', background: 'var(--cream)' }}>
         {SERVICES.map((s, i) => (
           <ServiceBlock key={s.slug} service={s} videos={videos} i={i}/>
         ))}

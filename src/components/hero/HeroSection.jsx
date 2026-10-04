@@ -10,7 +10,7 @@ import { usePrefersReducedMotion } from './usePrefersReducedMotion';
 const CARD_CONFIG = [
   {
     key: 'top-left',
-    style: { top: '10%', left: '6%', width: 'clamp(150px,16vw,220px)', height: 'clamp(190px,20vw,280px)' },
+    style: { top: '10%', left: '6%', width: 'clamp(150px, 16vw, calc(220px * var(--k)))', height: 'clamp(190px, 20vw, calc(280px * var(--k)))' },
     depth: 40,
     entryFrom: { x: -120, y: -80 },
     floatDuration: 7,
@@ -21,7 +21,7 @@ const CARD_CONFIG = [
   },
   {
     key: 'bottom-left',
-    style: { bottom: '12%', left: '10%', width: 'clamp(130px,14vw,190px)', height: 'clamp(170px,18vw,240px)' },
+    style: { bottom: '12%', left: '10%', width: 'clamp(130px, 14vw, calc(190px * var(--k)))', height: 'clamp(170px, 18vw, calc(240px * var(--k)))' },
     depth: 60,
     entryFrom: { x: -100, y: 100 },
     floatDuration: 8.5,
@@ -32,7 +32,7 @@ const CARD_CONFIG = [
   },
   {
     key: 'top-right',
-    style: { top: '12%', right: '7%', width: 'clamp(140px,15vw,200px)', height: 'clamp(180px,19vw,260px)' },
+    style: { top: '12%', right: '7%', width: 'clamp(140px, 15vw, calc(200px * var(--k)))', height: 'clamp(180px, 19vw, calc(260px * var(--k)))' },
     depth: 50,
     entryFrom: { x: 120, y: -100 },
     floatDuration: 7.5,
@@ -43,7 +43,7 @@ const CARD_CONFIG = [
   },
   {
     key: 'bottom-right',
-    style: { bottom: '9%', right: '9%', width: 'clamp(120px,13vw,180px)', height: 'clamp(160px,17vw,230px)' },
+    style: { bottom: '9%', right: '9%', width: 'clamp(120px, 13vw, calc(180px * var(--k)))', height: 'clamp(160px, 17vw, calc(230px * var(--k)))' },
     depth: 70,
     entryFrom: { x: 100, y: 90 },
     floatDuration: 9,

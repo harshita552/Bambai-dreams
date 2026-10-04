@@ -37,7 +37,7 @@ const fieldBase = {
   width: '100%', background: 'transparent',
   border: 'none', borderBottom: '1px solid var(--ink-light)',
   padding: '12px 0', fontFamily: '"DM Sans",sans-serif',
-  fontSize: 14, color: 'var(--ink)', marginBottom: 28, display: 'block',
+  fontSize: 'max(calc(14px * var(--k) * var(--fm)), var(--fs-min))', color: 'var(--ink)', marginBottom: 28, display: 'block',
 };
 
 export default function Contact() {
@@ -73,14 +73,14 @@ export default function Contact() {
           transition={{ duration: 0.5, ease: 'easeOut' }}
           style={{
             background: 'var(--ink)',
-            padding: 'calc(var(--nav-h) + clamp(16px,3vh,40px)) clamp(32px,5vw,72px) clamp(60px,8vw,100px)',
+            padding: 'calc(var(--nav-h) + clamp(16px, 3vh, calc(40px * var(--k)))) clamp(32px, 5vw, calc(72px * var(--k))) clamp(60px, 8vw, calc(100px * var(--k)))',
             display: 'flex', flexDirection: 'column', justifyContent: 'center',
             borderRight: '3px double rgba(245,240,232,0.18)',
           }}>
           <p className="kicker" style={{ marginBottom: 20 }}>✦ Let's Talk</p>
           <h1 style={{
             fontFamily: '"Playfair Display",serif', fontWeight: 900,
-            fontSize: 'clamp(36px,6.5vw,72px)', color: 'var(--cream)',
+            fontSize: 'max(clamp(36px, 6.5vw, calc(72px * var(--k))), var(--fs-min))', color: 'var(--cream)',
             lineHeight: 1.04, marginBottom: 52,
           }}>
             Let's Create<br/><em style={{ color: 'var(--gold-light)' }}>Together.</em>
@@ -89,22 +89,22 @@ export default function Contact() {
           <div style={{ borderTop: '1px solid rgba(245,240,232,0.14)', paddingTop: 40 }}>
             <p style={{
               fontFamily: '"Playfair Display",serif', fontWeight: 700,
-              fontSize: 20, color: 'var(--cream)', marginBottom: 6,
+              fontSize: 'max(calc(20px * var(--k)), var(--fs-min))', color: 'var(--cream)', marginBottom: 6,
             }}>Satvant Singh</p>
             <p style={{
               fontFamily: '"IM Fell English",serif', fontStyle: 'italic',
-              fontSize: 14, color: 'var(--ink-light)', marginBottom: 22,
+              fontSize: 'max(calc(14px * var(--k) * var(--fm)), var(--fs-min))', color: 'var(--ink-light)', marginBottom: 22,
             }}>Founder & Creative Director</p>
             {['+91 9795 000 555', '+91 9820 538 238'].map(n => (
-              <p key={n} style={{ fontFamily: '"DM Sans",sans-serif', fontSize: 14, color: 'var(--gold)', marginBottom: 9 }}>{n}</p>
+              <p key={n} style={{ fontFamily: '"DM Sans",sans-serif', fontSize: 'max(calc(14px * var(--k) * var(--fm)), var(--fs-min))', color: 'var(--gold)', marginBottom: 9 }}>{n}</p>
             ))}
             <a href="mailto:satvant@bambaidreams.com"
-              style={{ fontFamily: '"DM Sans",sans-serif', fontSize: 14, color: 'var(--gold)', textDecoration: 'none', borderBottom: '1px solid var(--gold)' }}>
+              style={{ fontFamily: '"DM Sans",sans-serif', fontSize: 'max(calc(14px * var(--k) * var(--fm)), var(--fs-min))', color: 'var(--gold)', textDecoration: 'none', borderBottom: '1px solid var(--gold)' }}>
               satvant@bambaidreams.com
             </a>
           </div>
 
-          <p style={{ fontFamily: '"DM Sans",sans-serif', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--ink-light)', marginTop: 52 }}>
+          <p style={{ fontFamily: '"DM Sans",sans-serif', fontSize: 'max(calc(9px * var(--k) * var(--fm)), var(--fs-min))', letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--ink-light)', marginTop: 52 }}>
             Mumbai, India
           </p>
         </motion.div>
@@ -116,22 +116,22 @@ export default function Contact() {
           transition={{ duration: 0.5, ease: 'easeOut', delay: 0.1 }}
           style={{
             background: 'var(--paper)',
-            padding: 'calc(var(--nav-h) + clamp(16px,3vh,40px)) clamp(32px,5vw,72px) clamp(60px,8vw,100px)',
+            padding: 'calc(var(--nav-h) + clamp(16px, 3vh, calc(40px * var(--k)))) clamp(32px, 5vw, calc(72px * var(--k))) clamp(60px, 8vw, calc(100px * var(--k)))',
             display: 'flex', flexDirection: 'column', justifyContent: 'center',
           }}>
 
           {sent ? (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} style={{ textAlign: 'center' }}>
-              <p style={{ fontFamily: '"Playfair Display",serif', fontWeight: 900, fontSize: 40, color: 'var(--ink)', marginBottom: 16 }}>
+              <p style={{ fontFamily: '"Playfair Display",serif', fontWeight: 900, fontSize: 'max(calc(40px * var(--k)), var(--fs-min))', color: 'var(--ink)', marginBottom: 16 }}>
                 Thank you. ✦
               </p>
-              <p style={{ fontFamily: '"IM Fell English",serif', fontStyle: 'italic', fontSize: 18, color: 'var(--ink-mid)' }}>
+              <p style={{ fontFamily: '"IM Fell English",serif', fontStyle: 'italic', fontSize: 'max(calc(18px * var(--k) * var(--fm)), var(--fs-min))', color: 'var(--ink-mid)' }}>
                 We will be in touch soon.
               </p>
             </motion.div>
           ) : (
             <form onSubmit={handleSubmit}>
-              <p style={{ fontFamily: '"Playfair Display",serif', fontWeight: 700, fontSize: 24, color: 'var(--ink)', marginBottom: 40 }}>
+              <p style={{ fontFamily: '"Playfair Display",serif', fontWeight: 700, fontSize: 'max(calc(24px * var(--k)), var(--fs-min))', color: 'var(--ink)', marginBottom: 40 }}>
                 Start a Project
               </p>
 
@@ -140,7 +140,7 @@ export default function Contact() {
                 { key: 'company', label: 'Company', ph: 'Brand or agency', type: 'text', req: false },
               ].map(f => (
                 <div key={f.key}>
-                  <label style={{ fontFamily: '"DM Sans",sans-serif', fontSize: 9, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--ink-light)' }}>
+                  <label style={{ fontFamily: '"DM Sans",sans-serif', fontSize: 'max(calc(9px * var(--k) * var(--fm)), var(--fs-min))', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--ink-light)' }}>
                     {f.label}
                   </label>
                   <input
@@ -151,7 +151,7 @@ export default function Contact() {
                 </div>
               ))}
 
-              <label style={{ fontFamily: '"DM Sans",sans-serif', fontSize: 9, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--ink-light)' }}>
+              <label style={{ fontFamily: '"DM Sans",sans-serif', fontSize: 'max(calc(9px * var(--k) * var(--fm)), var(--fs-min))', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--ink-light)' }}>
                 Project Type
               </label>
               <select value={form.type} onChange={e => setForm(x => ({ ...x, type: e.target.value }))}
@@ -162,7 +162,7 @@ export default function Contact() {
                 ))}
               </select>
 
-              <label style={{ fontFamily: '"DM Sans",sans-serif', fontSize: 9, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--ink-light)' }}>
+              <label style={{ fontFamily: '"DM Sans",sans-serif', fontSize: 'max(calc(9px * var(--k) * var(--fm)), var(--fs-min))', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--ink-light)' }}>
                 Message
               </label>
               <textarea required rows={4} placeholder="Tell us about your project"
@@ -177,7 +177,7 @@ export default function Contact() {
                     width: '100%', background: 'var(--ink)', color: 'var(--cream)',
                     border: 'none', padding: '17px 0',
                     fontFamily: '"Playfair Display",serif', fontStyle: 'italic',
-                    fontSize: 20, cursor: 'pointer', letterSpacing: '0.02em',
+                    fontSize: 'max(calc(20px * var(--k)), var(--fs-min))', cursor: 'pointer', letterSpacing: '0.02em',
                   }}>Send →</motion.button>
               </div>
             </form>

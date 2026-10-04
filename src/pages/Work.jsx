@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useVimeoFeed } from '../hooks/useVimeoFeed';
+import { WORK_VIDEOS } from '../data/workVideos';
 import VideoCard from '../components/VideoCard';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { WorkShowcase } from './Home';
@@ -18,12 +18,11 @@ const FILTERS = [
 
 
 export default function Work() {
-  const { videos, loading } = useVimeoFeed();
   const [active, setActive] = useState('all');
   const isMobile = useIsMobile();
 
-  const pool = videos.filter(v => v.category !== 'showreel');
-  const matched = active === 'all' ? pool : videos.filter(v => v.category === active);
+  const pool = WORK_VIDEOS;
+  const matched = active === 'all' ? pool : pool.filter(v => v.category === active);
 
   // Placeholder until the real films land: a category with nothing of its own
   // (photography and documentaries today) borrows from the rest of the reel
@@ -57,12 +56,12 @@ export default function Work() {
       <div data-nav-light>
 
         {/* Filter bar */}
-        <div style={{ padding: 'clamp(32px,4vw,48px) clamp(24px,4vw,56px) clamp(20px,2.5vw,28px)' }}>
+        <div style={{ padding: 'clamp(32px, 4vw, calc(48px * var(--k))) clamp(24px, 4vw, calc(56px * var(--k))) clamp(20px, 2.5vw, calc(28px * var(--k)))' }}>
           {/* The selected filter is a solid brand-yellow chip, the same square
               lockup as the deck's VIEW EVERYTHING / EXPLORE CAMPAIGN buttons.
               One shared layoutId means the chip slides across to whichever
               filter you pick rather than blinking out and back in. */}
-          <div style={{ display: 'flex', gap: 'clamp(4px,0.8vw,12px)', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 'clamp(4px, 0.8vw, calc(12px * var(--k)))', flexWrap: 'wrap' }}>
             {FILTERS.map(f => {
               const on = active === f.key;
               return (
@@ -70,8 +69,8 @@ export default function Work() {
                   onClick={() => setActive(f.key)}
                   style={{
                     position: 'relative', background: 'none', border: 'none',
-                    padding: 'clamp(6px,0.8vw,10px) clamp(12px,1.4vw,20px)',
-                    fontFamily: MR, fontWeight: 800, fontSize: 'clamp(12px,1.5vw,16px)',
+                    padding: 'clamp(6px, 0.8vw, calc(10px * var(--k))) clamp(12px, 1.4vw, calc(20px * var(--k)))',
+                    fontFamily: MR, fontWeight: 800, fontSize: 'max(clamp(calc(12px * var(--fm)), 1.5vw, calc(16px * var(--k))), var(--fs-min))',
                     letterSpacing: '0.04em', textTransform: 'uppercase',
                     color: on ? 'var(--ink)' : '#1a1209',
                     cursor: 'pointer', lineHeight: 1,
@@ -95,37 +94,29 @@ export default function Work() {
         </div>
 
         {/* Video grid */}
-        <div style={{ padding: 'clamp(28px,4vw,44px) clamp(20px,4vw,56px) clamp(60px,8vw,96px)' }}>
-          {loading ? (
-            <div style={{ padding: '80px 0', textAlign: 'center' }}>
-              <p style={{ fontFamily: GS, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(26,18,9,0.3)', fontSize: 14 }}>
-                Loading Portfolio…
-              </p>
-            </div>
-          ) : (
-            <motion.div layout style={{
-              display: 'grid',
-              gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
-              gap: 16,
-            }}>
-              <AnimatePresence mode="popLayout">
-                {list.map((v, i) => (
-                  <motion.div key={v.id} layout
-                    initial={{ opacity: 0, y: 18 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.94 }}
-                    transition={{ delay: i * 0.04, duration: 0.3 }}>
-                    {/* 14px to match the Featured Work tiles above */}
-                    <VideoCard video={v} allVideos={list}
-                      aspectRatio='56.25%' style={{ borderRadius: 14 }}/>
-                  </motion.div>
+        <div style={{ padding: 'clamp(28px, 4vw, calc(44px * var(--k))) clamp(20px, 4vw, calc(56px * var(--k))) clamp(60px, 8vw, calc(96px * var(--k)))' }}>
+          <motion.div layout style={{
+            display: 'grid',
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
+            gap: 16,
+          }}>
+            <AnimatePresence mode="popLayout">
+              {list.map((v, i) => (
+                <motion.div key={v.id} layout
+                  initial={{ opacity: 0, y: 18 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.94 }}
+                  transition={{ delay: Math.min(i, 9) * 0.04, duration: 0.3 }}>
+                  {/* 14px to match the Featured Work tiles above */}
+                  <VideoCard video={v} allVideos={list}
+                    aspectRatio='56.25%' style={{ borderRadius: 14 }}/>
+                </motion.div>
                 ))}
               </AnimatePresence>
             </motion.div>
-          )}
 
-          {!loading && list.length === 0 && (
-            <p style={{ fontFamily: GS, fontWeight: 700, textTransform: 'uppercase', color: 'rgba(26,18,9,0.3)', textAlign: 'center', padding: '64px 0', fontSize: 14, letterSpacing: '0.1em' }}>
+          {list.length === 0 && (
+            <p style={{ fontFamily: GS, fontWeight: 700, textTransform: 'uppercase', color: 'rgba(26,18,9,0.3)', textAlign: 'center', padding: '64px 0', fontSize: 'max(calc(14px * var(--k) * var(--fm)), var(--fs-min))', letterSpacing: '0.1em' }}>
               No work in this category yet.
             </p>
           )}

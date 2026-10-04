@@ -25,13 +25,35 @@
      padding twice over, plus the centre logo. The bar is transparent site-wide,
      so any section that puts content near the top has to reserve this or the
      logo lands on it. Keep in step with Navbar.jsx. */
-  --nav-h: calc(2 * clamp(28px, 4.5vh, 48px) + clamp(38px, 7.2vh, 62px));
+  --nav-h: calc(2 * clamp(28px, 4.5vh, calc(48px * var(--k))) + clamp(38px, 7.2vh, calc(62px * var(--k))));
 
   /* The footer's fixed height. The yellow contact panel above it is sized
      calc(100vh - var(--footer-h)), so the two together are exactly one screen.
      Change this and the contact panel follows. */
-  --footer-h: clamp(228px, 28vh, 310px);
+  --footer-h: clamp(228px, calc(28vh * var(--k)), calc(310px * var(--k)));
+
+  /* Large-screen scale. The layout is drawn for laptop and desktop widths, so
+     past 1920px every fixed size (and every clamp() ceiling) is multiplied by
+     --k to keep the page in proportion on QHD, ultrawide and 4K TVs. At 1920px
+     and below it is exactly 1, so nothing there moves. */
+  --k: 1;
+
+  /* Small-screen type. Labels drawn at 9-12px on desktop are unreadable in a
+     condensed face on a phone, so below 1024px small sizes grow by --fm and
+     nothing drops under --fs-min. Desktop: 1 and 0, i.e. untouched. */
+  --fm: 1;
+  --fs-min: 0px;
 }
+@media (max-width: 1023px) { :root { --fm: 1.12; --fs-min: 11px; } }
+@media (max-width: 640px)  { :root { --fm: 1.15; --fs-min: 11.5px; } }
+@media (min-width: 2048px) { :root { --k: 1.07; } }
+@media (min-width: 2200px) { :root { --k: 1.15; } }
+@media (min-width: 2400px) { :root { --k: 1.25; } }
+@media (min-width: 2560px) { :root { --k: 1.33; } }
+@media (min-width: 2880px) { :root { --k: 1.5; } }
+@media (min-width: 3200px) { :root { --k: 1.67; } }
+@media (min-width: 3440px) { :root { --k: 1.79; } }
+@media (min-width: 3840px) { :root { --k: 2; } }
 
 /* ── Reset ──────────────────────────────────────────────────────── */
 *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
@@ -183,7 +205,7 @@ button:focus-visible { outline:2px solid var(--yellow); outline-offset:3px; }
   display:inline-block;
   background:var(--yellow); color:var(--ink);
   font-family:'DM Sans',sans-serif;
-  font-size:8px; letter-spacing:0.2em; text-transform:uppercase;
+  font-size:max(calc(8px * var(--k) * var(--fm)), var(--fs-min)); letter-spacing:0.2em; text-transform:uppercase;
   padding:3px 10px;
 }
 
@@ -195,12 +217,12 @@ button:focus-visible { outline:2px solid var(--yellow); outline-offset:3px; }
 /* ── Kicker ──────────────────────────────────────────────────────── */
 .kicker {
   font-family:'DM Sans',sans-serif;
-  font-size:9px; letter-spacing:0.24em; text-transform:uppercase;
+  font-size:max(calc(9px * var(--k) * var(--fm)), var(--fs-min)); letter-spacing:0.24em; text-transform:uppercase;
   color:var(--ink-light);
 }
 .kicker-yellow {
   font-family:'DM Sans',sans-serif;
-  font-size:9px; letter-spacing:0.24em; text-transform:uppercase;
+  font-size:max(calc(9px * var(--k) * var(--fm)), var(--fs-min)); letter-spacing:0.24em; text-transform:uppercase;
   color:var(--yellow);
 }
 
@@ -246,10 +268,22 @@ button:focus-visible { outline:2px solid var(--yellow); outline-offset:3px; }
   );
 }
 
+/* ── Featured film lockups ───────────────────────────────────────── */
+/* The copy over each full-screen film is laid out in deck units (--u = the
+   deck's 1vw). On narrower screens the unit grows so the lockup stays a
+   readable size, and on portrait screens it drops below the subject's face. */
+.film-copy { --u: 1vw; }
+@media (max-width: 1023px) { .film-copy { --u: 1.75vw; } }
+@media (max-width: 640px)  { .film-copy { --u: 2.8vw; } }
+@media (max-aspect-ratio: 1/1) { .film-lockup { top: 56% !important; } }
+
 /* ── Featured showcase stills + mobile structural overrides ─────── */
 @media (max-width: 767px) {
   .featured-still { display: none !important; }
   .work-view-all  { display: none !important; }
+  /* Stacked columns need their full height; the one-screen pairing with the
+     CTA above only holds where the columns sit side by side. */
+  .site-footer { height: auto !important; overflow: visible !important; }
 }
 
 /* ── Mobile / touch — hide custom cursor, restore default ───────── */
@@ -298,6 +332,14 @@ button:focus-visible { outline:2px solid var(--yellow); outline-offset:3px; }
   will-change: transform;
 }
 .tm-viewport:hover .tm-track { animation-play-state: paused; }
+
+/* Phones and portrait tablets: the section sizes to its content instead of
+   stretching the cards to fill one screen, which left them mostly empty. */
+@media (max-width: 1023px) and (max-aspect-ratio: 1/1) {
+  .brands-section { height: auto !important; padding-bottom: 56px !important; }
+  .brands-section .tm-track { height: auto !important; }
+  .tm-card { height: auto !important; min-height: clamp(220px, 46vw, 320px); gap: 28px; }
+}
 
 /* Soft-fade both edges (matches the reference) so cards dissolve as they
    enter/leave instead of being hard-clipped at the container edge. */
