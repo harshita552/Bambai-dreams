@@ -1274,14 +1274,21 @@ const RING_BRANDS = [
   { src: logoShapoorji, alt: 'Shapoorji' },
 ];
 
-// Client testimonials — Arpeggio-style cards in a continuous horizontal marquee.
+// Client testimonials — real, as given by the clients themselves. Verbatim:
+// don't tidy the phrasing, it is theirs.
 const TESTIMONIALS = [
-  { quote: 'Bambai Dreams turned our campaign into something truly cinematic. The craft and execution were flawless from start to finish.', name: 'Brand Team', role: 'Marketing Lead', company: 'Realme India' },
-  { quote: 'A production-first team that genuinely understands storytelling. They brought our brand film to life exactly as we imagined.', name: 'Creative Team', role: 'Brand Manager', company: 'GIVA' },
-  { quote: 'Fast, collaborative and endlessly creative. Every frame felt intentional — the result exceeded our expectations.', name: 'Campaign Team', role: 'Head of Content', company: 'Under Armour' },
-  { quote: 'Their attention to detail and ability to translate our vision into film made all the difference to the campaign.', name: 'Marketing Team', role: 'Brand Lead', company: 'OPPO India' },
-  { quote: 'Working with the team was a game-changer. They elevated our brand with visuals that felt premium and effortless.', name: 'Digital Team', role: 'Growth Manager', company: 'Noise' },
-  { quote: 'Responsive, sharp and genuinely creative. The films were delivered on time and captured exactly what we envisioned.', name: 'Brand Team', role: 'Category Head', company: 'TCL' },
+  {
+    quote: 'Collaborating with Bambai Dreams on our ad campaign was a genuinely great experience. What stood out most was how deeply they cared about the quality of the output — matching our own standards at every turn. Their attention to detail was exceptional, and working so closely with them taught us a great deal. We couldn’t have asked for a better creative partner.',
+    name: 'Meera Sapra', company: 'Zoho',
+  },
+  {
+    quote: 'Some production houses deliver a project. Bambai Dreams deliver the project and somehow keep everyone sane through it. Working with Satvant has been equal parts great work and good energy. They get the vision, bring their own creative POV, solve problems without making them problems, and make the whole process genuinely fun. We’re not concerned about the output ever if it’s Bambai Dreams. 10/10 would get into production chaos with them again.',
+    name: 'Shipra Gupta', company: 'Under Armour',
+  },
+  {
+    quote: 'If your production house is "Bambai Dreams" just sit back and relax. I’ve worked with Bambai Dreams on more than 20+ projects during my stint at OPPO India Mobiles and Under Armour India — from budgets ranging from 30 lakhs to 3 crores, from tier A celebrities to influencers to tech KOL’s, from local production to international locations. The quality, experience, TAT and overall management is flawless. The entire team at Bambai Dreams is well rehearsed with the work and make sure end to end execution is taken care well within deadlines. Keep rocking guys.',
+    name: 'Kanwar', company: 'OPPO India · Under Armour India',
+  },
 ];
 
 // One logo on the ring. Blur/opacity derive from its angle relative to the front:
@@ -1430,10 +1437,13 @@ function ClientsCarousel() {
 
 // Card geometry mirrors the reference: 280×500, #f6f6f6, 24px padding, no radius.
 function TestimonialCard({ t }) {
-  const initials = t.company.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  // initials off the person, not the company — these are signed quotes
+  const initials = t.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
   return (
     <li style={{
-      listStyle: 'none', flex: '0 0 auto', width: 430, height: '100%',
+      // wider than the old card: these are real quotes and run long, and fewer
+      // lines per quote is what keeps them inside a card that has to fit the fold
+      listStyle: 'none', flex: '0 0 auto', width: 'clamp(380px,34vw,560px)', height: '100%',
       background: 'rgb(246,246,246)', padding: 'clamp(20px,2.6vh,32px)', overflow: 'hidden',
       display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
     }}>
@@ -1457,7 +1467,9 @@ function TestimonialCard({ t }) {
         }}>{initials}</span>
         <div>
           <p style={{ margin: 0, fontFamily: MR, fontWeight: 500, fontSize: 21, lineHeight: 1.3, color: 'rgb(51,51,54)' }}>{t.name}</p>
-          <p style={{ margin: 0, fontFamily: MR, fontWeight: 500, fontSize: 17, lineHeight: 1.2, color: 'rgb(51,51,54)' }}>{t.role}</p>
+          {t.role && (
+            <p style={{ margin: 0, fontFamily: MR, fontWeight: 500, fontSize: 17, lineHeight: 1.2, color: 'rgb(51,51,54)' }}>{t.role}</p>
+          )}
           <p style={{ margin: 0, fontFamily: MR, fontWeight: 400, fontSize: 15, lineHeight: 1.2, color: 'rgb(111,111,117)' }}>{t.company}</p>
         </div>
       </div>
@@ -1519,34 +1531,26 @@ function BrandsMarquee() {
    (Agency / Production / Post / Digital) fold onto each other.
 ══════════════════════════════════════════════════════════════════ */
 const SERVICE_CATEGORIES = [
+  // Visual Storytelling and Video Production were two panels saying much the
+  // same thing, so they are one: the storytelling pitch and the production
+  // capability read as a single offer rather than as repetition.
   {
-    index: '01', label: 'Visual Storytelling', title: 'VISUAL\nSTORYTELLING',
-    desc: 'We capture the essence of your brand\'s soul and share it with your audience — igniting their passion through cinematic craft and purposeful storytelling.',
-    bullets: [
-      'Commercial Films',
-      'Music Videos',
-      'Documentaries',
-      'Lifestyle Photography',
-      'Product Photography',
-    ],
-    image: imgVisualStorytelling,
-    video: { id: '1190896661', h: '260b0b94e6' },
-  },
-  {
-    index: '02', label: 'Video Production', title: 'VIDEO\nPRODUCTION',
-    desc: 'We specialise in showcasing your brand or product as the hero of the film. From large-scale brand films to fast-moving digital content — produced with precision, passion, and purpose.',
+    index: '01', label: 'Visual Production', title: 'VISUAL\nPRODUCTION',
+    desc: 'We capture the essence of your brand\'s soul and share it with your audience — igniting their passion through cinematic craft and purposeful storytelling. From large-scale brand films to fast-moving digital content, produced end to end with top-tier directors and a battle-tested crew.',
     bullets: [
       'Brand & Commercial Films',
+      'Music Videos',
+      'Documentaries',
+      'Lifestyle & Product Photography',
       'Large-Scale Production',
       'On-Location & Studio Shoots',
-      'Top-Tier Directors & Battle-Tested Crew',
       'End-to-End Execution',
     ],
-    image: 'https://images.pexels.com/photos/2510428/pexels-photo-2510428.jpeg?auto=compress&cs=tinysrgb&w=600',
+    image: imgVisualStorytelling,
     video: { id: '1011387371', h: '7f621ac62a' },
   },
   {
-    index: '03', label: 'Talent Representation', title: 'TALENT\nREPRESENTATION',
+    index: '02', label: 'Talent Representation', title: 'TALENT\nREPRESENTATION',
     desc: 'We connect the right faces to the right brands — managing relationships, deals, and creative alignment so talent and campaign speak the same language.',
     bullets: [
       'Celebrity Management',
@@ -1559,7 +1563,7 @@ const SERVICE_CATEGORIES = [
     video: { id: '589343405', h: 'd4b410ce86' },
   },
   {
-    index: '04', label: 'Creative Development', title: 'CREATIVE\nDEVELOPMENT',
+    index: '03', label: 'Creative Development', title: 'CREATIVE\nDEVELOPMENT',
     desc: 'When brands and agencies need a partner at the concept stage, we step in — bringing ideas to life from first brief to final frame.',
     bullets: [
       'Concept & Script Development',
